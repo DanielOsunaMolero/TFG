@@ -2,19 +2,19 @@ import { createStore } from 'vuex'
 
 export default createStore({
   state: {
-    usuario: null
+    usuario: null // null si no está logueado
   },
   mutations: {
-    setUsuario(state, user) {
-      state.usuario = user
-    }
-  },
-  actions: {
-    login({ commit }, user) {
-      commit('setUsuario', user)
+    setUsuario(state, usuario) {
+      state.usuario = usuario
+    },
+    cerrarSesion(state) {
+      state.usuario = null
     }
   },
   getters: {
-    usuarioAutenticado: (state) => !!state.usuario
+    esVisitante: state => state.usuario?.tipo === 'visitante',
+    esPropietario: state => state.usuario?.tipo === 'propietario',
+    estaAutenticado: state => !!state.usuario
   }
 })

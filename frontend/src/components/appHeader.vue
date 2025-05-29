@@ -13,10 +13,10 @@
         <router-link v-if="esPropietario" to="/gestion" class="nav-link">Gestión</router-link>
 
         <template v-if="!estaAutenticado">
-            <button @click="$emit('mostrar-login')">Iniciar sesión</button>
-              <button @click="$emit('mostrar-registro')">Registro</button>
-        </template>
-  
+  <button class="auth-button login" @click="$emit('mostrar-login')">Iniciar sesión</button>
+  <button class="auth-button register" @click="$emit('mostrar-registro')">Registro</button>
+</template>
+
 
         <template v-else>
           <span class="nav-user">Hola, {{ usuario.nombre }}</span>
@@ -49,7 +49,7 @@ export default {
 .navbar {
   background-color: #84cca5;
   padding: 12px 24px;
-  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
 .nav-container {
@@ -91,4 +91,35 @@ export default {
   color: #f6e27f;
   margin-right: 16px;
 }
+
+.auth-button {
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid white;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.auth-button:hover {
+  background-color: #ffffff;
+  color: #333;
+  border-color: #ccc;
+}
+
+/* Estilos diferenciados si quieres añadir variantes */
+.auth-button.login:hover {
+  background-color: #60e29b;
+  border-color: #333;
+}
+
+.auth-button.register:hover {
+    background-color: #60e29b;
+  border-color: #333;
+}
+
 </style>

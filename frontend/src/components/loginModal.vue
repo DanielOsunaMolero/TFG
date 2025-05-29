@@ -2,15 +2,62 @@
   <div class="modal-overlay" @click.self="$emit('cerrar')">
     <div class="modal-box login">
       <h2>Inicio de sesión</h2>
-      <input placeholder="Email" />
-      <input placeholder="Contraseña" type="password" />
-      <button>Entrar</button>
+
+      <input v-model="email" type="email" placeholder="Correo electrónico" />
+      <input v-model="password" type="password" placeholder="Contraseña" />
+
+      <button @click="iniciarSesion">Entrar</button>
     </div>
   </div>
 </template>
 
 <script>
-export default { name: 'LoginModal' }
+import { mapMutations } from 'vuex'
+
+export default {
+  name: 'LoginModal',
+  data() {
+    return {
+      email: '',
+      password: ''
+    }
+  },
+  methods: {
+    ...mapMutations(['guardarUsuario']),
+
+    async iniciarSesion() {
+      if (!this.email || !this.password) {
+        alert("Introduce tu correo y contraseña.")
+        return
+      }
+
+      try {
+        const res = await fetch('http://localhost/dashboard/TFG/backend/api/login.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: this.email,
+            password: this.password
+          })
+        })
+
+        const data = await res.json()
+
+        if (data.success && data.usuario) {
+          this.guardarUsuario(data.usuario)
+          alert("Sesión iniciada correctamente.")
+          this.$emit('cerrar')
+        } else {
+          alert(data.error || "Login incorrecto.")
+        }
+
+      } catch (error) {
+        console.error("Error al iniciar sesión:", error)
+        alert("Error de conexión con el servidor.")
+      }
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -27,11 +74,16 @@ export default { name: 'LoginModal' }
   z-index: 1000;
 }
 
-.modal-box {
+.modal-box.login {
   background: white;
   padding: 24px;
   border-radius: 16px;
   width: 300px;
+}
+
+.modal-box h2 {
+  margin-bottom: 16px;
+  font-style: italic;
 }
 
 .modal-box input {

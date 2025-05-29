@@ -1,18 +1,30 @@
 <?php
-header('Content-Type: application/json');
-require_once 'conexion.php';
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
 
-$id = isset($_GET['id']) ? $_GET['id'] : null;
+// Carga conexión con ruta segura y correcta
+require_once __DIR__ . '/conexion.php';
 
-if ($id) {
-  $sql = "SELECT * FROM casa_rural WHERE id_casa = ?";
-  $stmt = $conexion->prepare($sql);
-  $stmt->execute([$id]);
-  $casa = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  echo json_encode($casa);
-} else {
-  echo json_encode(["error" => "ID no proporcionado"]);
+// Verificar que se ha recibido el parámetro id
+if (!isset($_GET['id'])) {
+    echo json_encode(["error" => "Falta el parámetro id"]);
+    exit;
 }
-/*PARA OBTENER UNA DE LAS CASAS */
-?>
+
+$id = intval($_GET['id']);
+
+try {
+    $sql = "SELECT id_casa, titulo, descripcion, ubicacion, precio_noche, servicios
+            FROM casa_rural WHERE id_casa = ?";
+    $stmt = $conexion->prepare($sql); // <- aquí se usa $conexion correctamente
+    $stmt->execute([$id]);
+    $casa = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($casa) {
+        echo json_encode($casa);
+    } else {
+        echo json_encode(["error" => "Casa no encontrada"]);
+    }
+} catch (Exception $e) {
+    echo json_encode(["error" => $e->getMessage()]);
+}

@@ -2,29 +2,81 @@
   <div class="modal-overlay" @click.self="$emit('cerrar')">
     <div class="modal-box registro">
       <h2>Registro</h2>
-      <input type="text" placeholder="Nombre completo" />
-      <input type="email" placeholder="Correo electrónico" />
-      <input type="password" placeholder="Contraseña" />
-      <input type="password" placeholder="Repetir contraseña" />
+      <input v-model="nombre" type="text" placeholder="Nombre completo" />
+      <input v-model="email" type="email" placeholder="Correo electrónico" />
+      <input v-model="password" type="password" placeholder="Contraseña" />
+      <input v-model="repetir" type="password" placeholder="Repetir contraseña" />
 
       <div class="acciones">
         <a href="#">Términos</a>
         <a href="#">Política</a>
       </div>
 
-      <div class="validaciones">
-        <span class="punto"></span>
-        <span class="punto"></span>
+      <!-- Sustituimos los puntos grises por los radios -->
+      <div class="tipo-usuario">
+        <label>
+          <input type="radio" value="visitante" v-model="tipo" />
+          Visitante
+        </label>
+        <label>
+          <input type="radio" value="propietario" v-model="tipo" />
+          Propietario
+        </label>
       </div>
 
-      <button>Registrarse</button>
+      <button @click="registrarse">Registrarse</button>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'RegistroModal'
+  name: 'RegistroModal',
+  data() {
+    return {
+      nombre: '',
+      email: '',
+      password: '',
+      repetir: '',
+      tipo: 'visitante'
+    }
+  },
+  methods: {
+    async registrarse() {
+  if (this.password !== this.repetir) {
+    alert('Las contraseñas no coinciden')
+    return
+  }
+
+  const payload = {
+    nombre: this.nombre,
+    email: this.email,
+    password: this.password,
+    tipo: this.tipo
+  }
+
+  try {
+    const res = await fetch('http://localhost/dashboard/TFG/backend/api/registro.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    const data = await res.json()
+    if (data.success || data.mensaje) {
+      alert('Registro exitoso.')
+      this.$emit('cerrar')
+    } else {
+      alert(data.error || 'Error al registrar usuario')
+    }
+  } catch (e) {
+    console.error('Error al registrar:', e)
+  }
+}
+
+  }
 }
 </script>
 
@@ -79,18 +131,15 @@ export default {
   text-decoration: none;
 }
 
-.validaciones {
+.tipo-usuario {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-around;
   margin-bottom: 16px;
+  font-size: 14px;
 }
 
-.punto {
-  width: 12px;
-  height: 12px;
-  background: #cfcfcf;
-  border-radius: 50%;
+.tipo-usuario input[type="radio"] {
+  margin-right: 6px;
 }
 
 button {

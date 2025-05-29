@@ -1,12 +1,24 @@
 <template>
   <div id="app">
-    <Header @mostrar-login="mostrarLogin = true" @mostrar-registro="mostrarRegistro = true" />
+    <Header 
+      @mostrar-login="mostrarLogin = true" 
+      @mostrar-registro="mostrarRegistro = true" 
+    />
+
     <router-view />
+
     <Footer />
 
-    <!-- Modales flotantes -->
-    <LoginModal v-if="mostrarLogin" @cerrar="mostrarLogin = false" />
-    <RegistroModal v-if="mostrarRegistro" @cerrar="mostrarRegistro = false" />
+    <!-- Modales -->
+    <LoginModal 
+      v-if="mostrarLogin" 
+      @cerrar="mostrarLogin = false" 
+    />
+
+    <RegistroModal 
+      v-if="mostrarRegistro" 
+      @cerrar="mostrarRegistro = false" 
+    />
   </div>
 </template>
 

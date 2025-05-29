@@ -8,11 +8,13 @@ import vRegistro from '../views/vRegistro.vue'
 import vGestionPropietarios from '../views/vGestionPropietarios.vue'
 import vBlog from '../views/vBlog.vue'
 import vSobre from '../views/vSobreNosotros(opcional).vue'
+import vCrearCasa from '../views/vCrearCasa.vue'
+import vEditarCasa from '../views/vEditarCasa.vue'
+
 
 
 const routes = [
   { path: '/', component: vInicio },
-
   { path: '/casa/:id', component: vCasaDetalle },
   { path: '/pago/:id', component: vPago },
   { path: '/login', component: vLogin },
@@ -20,7 +22,8 @@ const routes = [
   { path: '/gestion', component: vGestionPropietarios },
   { path: '/blog', component: vBlog },
   { path: '/sobre', component: vSobre },
-
+  { path: "/crear-casa", component: vCrearCasa },
+  { path: "/editar-casa/:id", component: vEditarCasa }
 ]
 
 const router = createRouter({
@@ -29,3 +32,4 @@ const router = createRouter({
 })
 
 export default router
+

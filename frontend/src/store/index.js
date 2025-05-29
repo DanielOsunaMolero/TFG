@@ -2,19 +2,20 @@ import { createStore } from 'vuex'
 
 export default createStore({
   state: {
-    usuario: null // null si no está logueado
+    usuario: JSON.parse(localStorage.getItem('usuario')) || null
   },
   mutations: {
-    setUsuario(state, usuario) {
+    guardarUsuario(state, usuario) {
       state.usuario = usuario
+      localStorage.setItem('usuario', JSON.stringify(usuario))
     },
     cerrarSesion(state) {
       state.usuario = null
+      localStorage.removeItem('usuario')
     }
   },
   getters: {
-    esVisitante: state => state.usuario?.tipo === 'visitante',
-    esPropietario: state => state.usuario?.tipo === 'propietario',
-    estaAutenticado: state => !!state.usuario
+    estaAutenticado: (state) => !!state.usuario,
+    esPropietario: (state) => state.usuario?.tipo === 'propietario'
   }
 })

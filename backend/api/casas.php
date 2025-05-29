@@ -1,4 +1,7 @@
 <?php
+header("Access-Control-Allow-Origin: *"); // ← esta línea permite que Vue acceda
+header("Content-Type: application/json");
+
 header('Content-Type: application/json');
 require_once 'conexion.php';
 

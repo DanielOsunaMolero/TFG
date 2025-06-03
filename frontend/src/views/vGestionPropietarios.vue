@@ -92,9 +92,11 @@ export default {
 
 .grid-casas {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
+
+
 
 .card-casa {
   background: #f7f7f7;
@@ -133,4 +135,18 @@ export default {
   background-color: #e74c3c;
   color: white;
 }
+
+
+@media (max-width: 900px) {
+  .grid-casas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid-casas {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>

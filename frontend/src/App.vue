@@ -1,20 +1,21 @@
 <template>
   <div id="app">
-    <Header 
-      @mostrar-login="mostrarLogin = true" 
-      @mostrar-registro="mostrarRegistro = true" 
-    />
+    <div class="app-container">
+      <Header 
+        @mostrar-login="mostrarLogin = true" 
+        @mostrar-registro="mostrarRegistro = true" 
+      />
 
-    <router-view />
+      <router-view class="contenido-principal" />
 
-    <Footer />
+      <Footer />
+    </div>
 
     <!-- Modales -->
     <LoginModal 
       v-if="mostrarLogin" 
       @cerrar="mostrarLogin = false" 
     />
-
     <RegistroModal 
       v-if="mostrarRegistro" 
       @cerrar="mostrarRegistro = false" 
@@ -46,8 +47,23 @@ export default {
 </script>
 
 <style>
-body {
+html, body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  padding: 0;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.contenido-principal {
+  flex: 1;
 }
 </style>

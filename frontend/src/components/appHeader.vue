@@ -6,9 +6,7 @@
       </router-link>
 
       <div class="nav-links">
-        <router-link to="/casa/:id" class="nav-link">PerfilCasa</router-link>
         <router-link to="/" class="nav-link">Inicio</router-link>
-        <router-link to="/buscar" class="nav-link">Buscar</router-link>
         <router-link to="/blog" class="nav-link">Blog</router-link>
         <router-link v-if="esPropietario" to="/gestion" class="nav-link">Gestión</router-link>
 

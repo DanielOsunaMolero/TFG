@@ -10,7 +10,7 @@ import vBlog from '../views/vBlog.vue'
 import vSobre from '../views/vSobreNosotros(opcional).vue'
 import vCrearCasa from '../views/vCrearCasa.vue'
 import vEditarCasa from '../views/vEditarCasa.vue'
-
+import vReservar from '../views/vReservar.vue'
 
 
 const routes = [
@@ -23,7 +23,8 @@ const routes = [
   { path: '/blog', component: vBlog },
   { path: '/sobre', component: vSobre },
   { path: "/crear-casa", component: vCrearCasa },
-  { path: "/editar-casa/:id", component: vEditarCasa }
+  { path: "/editar-casa/:id", component: vEditarCasa },
+  { path: "/reservar/:id", component: vReservar }
 ]
 
 const router = createRouter({

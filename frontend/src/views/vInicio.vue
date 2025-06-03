@@ -1,33 +1,39 @@
 <template>
   <div class="inicio-container">
-
-    <!-- Barra de búsqueda y filtros -->
+    <!-- Buscador -->
     <section class="buscador">
       <div class="filtros"></div>
-
-      <input type="text" v-model="busqueda" placeholder="Buscar casas..." class="input-busqueda" />
-      <button class="boton-buscar">🔍</button>
+      <input type="text" v-model="busqueda" 
+      @keyup.enter="filtrarCasas"
+       placeholder="Buscar casas..."
+      class="input-busqueda" />
+      <button class="boton-buscar" @click="filtrarCasas">🔍</button>
     </section>
 
-    <!-- Cuadrícula de tarjetas dinámicas -->
+    <!-- Cuadrícula -->
     <section class="galeria">
-      <div
-  v-for="casa in casas"
-  :key="casa.id_casa"
-  class="tarjeta"
-  @click="$router.push(`/casa/${casa.id_casa}`)"
->
-  <div class="imagen-con-transicion">
-    <div
-      class="imagen"
-      :style="{ backgroundImage: `url('${getImagen(casa.titulo)}')` }"
-    ></div>
-    <div class="titulo-flotante">{{ casa.titulo }}</div>
+  <div
+    v-if="casasFiltradas.length === 0"
+    class="mensaje-no-resultados"
+  >
+    No se ha encontrado ninguna casa que coincida con la búsqueda.
   </div>
-</div>
 
-
-    </section>
+  <div
+    v-for="casa in casasFiltradas"
+    :key="casa.id_casa"
+    class="tarjeta"
+    @click="$router.push(`/casa/${casa.id_casa}`)"
+  >
+    <div class="imagen-con-transicion">
+      <div
+        class="imagen"
+        :style="{ backgroundImage: `url('${getImagen(casa.titulo)}')` }"
+      ></div>
+      <div class="titulo-flotante">{{ casa.titulo }}</div>
+    </div>
+  </div>
+</section>
 
   </div>
 </template>
@@ -40,21 +46,12 @@ export default {
   data() {
     return {
       casas: [],
+      casasFiltradas: [],
       busqueda: '',
-      imagenIndex: 0, // índice que se actualiza cada 10 segundos
-    }
-  },
-  computed: {
-    casasFiltradas() {
-      return this.casas.filter(c =>
-        c.titulo.toLowerCase().includes(this.busqueda.toLowerCase())
-      )
+      imagenIndex: 0
     }
   },
   methods: {
-    verCasa(id) {
-      this.$router.push(`/casa/${id}`)
-    },
     getImagen(titulo) {
       const normalizar = (str) =>
         (str || '')
@@ -65,26 +62,31 @@ export default {
           .replace(/^_+|_+$/g, "");
 
       const base = normalizar(titulo);
-      const index = (this.imagenIndex % 6) + 1; // suponiendo que hay hasta 6 fotos por casa
+      const index = (this.imagenIndex % 6) + 1;
       return `${window.location.origin}/fotos/Foto_${base}(${index}).jpg`;
+    },
+    filtrarCasas() {
+      const b = this.busqueda.toLowerCase();
+      this.casasFiltradas = this.casas.filter(c =>
+        c.titulo.toLowerCase().includes(b) ||
+        c.ubicacion.toLowerCase().includes(b) ||
+        c.servicios.toLowerCase().includes(b)
+      );
     }
-
-
   },
   mounted() {
     axios
       .get('http://localhost/dashboard/TFG/backend/api/casas.php')
       .then(res => {
         this.casas = res.data;
+        this.casasFiltradas = res.data; // mostrar todas al inicio
       })
       .catch(err => console.error('Error al cargar casas:', err));
 
-    // Cambiar imagen cada 10 segundos
     setInterval(() => {
       this.imagenIndex++;
     }, 10000);
   }
-
 }
 </script>
 
@@ -133,7 +135,8 @@ export default {
 /* Tarjetas */
 .galeria {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Fuerza 3 columnas */
+  grid-template-columns: repeat(4, 1fr);
+  /* Fuerza 3 columnas */
   gap: 50px;
   position: relative;
   z-index: 1;
@@ -195,13 +198,24 @@ export default {
   animation: fadeIn 1s ease-in-out;
 }
 
+.mensaje-no-resultados {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #333;
+  background-color: #f5f5f5;
+  padding: 40px 20px;
+  font-size: 18px;
+  border-radius: 10px;
+}
+
+
 @keyframes fadeIn {
   from {
     opacity: 0.5;
   }
+
   to {
     opacity: 1;
   }
 }
-
 </style>

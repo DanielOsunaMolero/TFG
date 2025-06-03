@@ -44,9 +44,11 @@
     </section>
 
     <!-- Botón de acción -->
+    <!-- Botón de acción -->
     <div class="boton-reserva">
-      <button>Reservar</button>
+      <button @click="$router.push(`/reservar/${casa.id_casa}`)">Reservar</button>
     </div>
+
   </div>
 </template>
 

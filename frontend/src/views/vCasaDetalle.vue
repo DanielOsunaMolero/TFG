@@ -6,9 +6,14 @@
         <img :src="fotoSeleccionada" alt="Foto principal" class="img-principal" />
       </div>
 
-
       <div class="miniaturas">
-        <div class="miniatura" v-for="(foto, i) in fotosCasa" :key="i" :style="{ backgroundImage: `url('${foto}')` }" @click="fotoSeleccionada = foto"></div>
+        <div
+          class="miniatura"
+          v-for="(foto, i) in fotosCasa"
+          :key="i"
+          :style="{ backgroundImage: `url('${foto}')` }"
+          @click="fotoSeleccionada = foto"
+        ></div>
       </div>
     </section>
 
@@ -33,34 +38,86 @@
 
     <!-- Descripción y valoraciones -->
     <section class="info-extra">
-      <div class="descripcion">
-        <h3>Descripción</h3>
-        <p>{{ casa?.descripcion }}</p>
-      </div>
-      <div class="valoraciones">
-        <h3>Valoraciones</h3>
-        <div class="bloque-valoracion">[Próximamente]</div>
-      </div>
-    </section>
+  <div class="descripcion">
+    <h3>Descripción</h3>
+    <p>{{ casa?.descripcion }}</p>
 
-    <!-- Botón de acción -->
+    <!-- Formulario de valoración -->
+    <div v-if="puedeValorar" class="form-valoracion">
+      <h4>Deja tu valoración</h4>
+      <textarea
+        v-model="formularioValoracion.texto"
+        placeholder="Escribe tu valoración"
+      ></textarea>
+      <div class="form-controls">
+        <div class="estrellas-clicables">
+          <span
+            v-for="n in 5"
+            :key="n"
+            class="estrella"
+            :class="{ activa: n <= formularioValoracion.puntuacion }"
+            @click="formularioValoracion.puntuacion = n"
+          >
+            ★
+          </span>
+        </div>
+        <label>
+          Días de estancia:
+          <input type="number" v-model="formularioValoracion.dias" min="1" />
+        </label>
+        <button @click="enviarValoracion">Enviar valoración</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="valoraciones">
+    <h3>Valoraciones</h3>
+
+    <div v-if="valoraciones.length === 0">Esta casa aún no tiene valoraciones.</div>
+
+    <div class="grid-valoraciones">
+      <valoracionCard
+        v-for="valoracion in valoraciones"
+        :key="valoracion.id_valoracion"
+        :fotoPerfil="rutaFotoPerfil(valoracion.foto_perfil)"
+        :nombreUsuario="valoracion.nombre_usuario"
+        :nombreCasa="valoracion.nombre_casa"
+        :textoValoracion="valoracion.texto_valoracion"
+        :puntuacion="Number(valoracion.puntuacion)"
+        :diasEstancia="valoracion.dias_estancia"
+      />
+    </div>
+  </div>
+</section>
+
+
     <!-- Botón de acción -->
     <div class="boton-reserva">
       <button @click="$router.push(`/reservar/${casa.id_casa}`)">Reservar</button>
     </div>
-
   </div>
 </template>
 
+
 <script>
 import axios from 'axios'
+import valoracionCard from '@/components/valoracionCard.vue'
 
 export default {
   name: 'vCasaDetalle',
+  components: { valoracionCard },
   data() {
     return {
       casa: null,
-      fotoSeleccionada: null
+      fotoSeleccionada: null,
+      valoraciones: [],
+      puedeValorar: false,
+      formularioValoracion: {
+        texto: '',
+        puntuacion: 5,
+        dias: 1
+      },
+      id_usuario: null
     }
   },
   computed: {
@@ -81,19 +138,17 @@ export default {
 
       const normalizar = (str) =>
         (str || '')
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
           .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "_")
-          .replace(/^_+|_+$/g, "")
+          .replace(/[^a-z0-9]+/g, '_')
+          .replace(/^_+|_+$/g, '')
 
       const titulo = normalizar(this.casa.titulo)
-      console.log("Título normalizado:", titulo)
 
       const fotos = []
       for (let i = 1; i <= 6; i++) {
         const ruta = `${window.location.origin}/fotos/Foto_${titulo}(${i}).jpg`
-        console.log("Ruta generada:", ruta)
         fotos.push(ruta)
       }
 
@@ -102,40 +157,90 @@ export default {
   },
   mounted() {
     const id = this.$route.params.id
-    axios
-      .get(`http://localhost/dashboard/TFG/backend/api/casa.php?id=${id}`)
-      .then(res => {
+    this.id_usuario = localStorage.getItem('id_usuario') // O Vuex
+
+    this.cargarCasa(id)
+    this.cargarValoraciones(id)
+    this.verificarReserva(id)
+  },
+  methods: {
+    async cargarCasa(id) {
+      try {
+        const res = await axios.get(`http://localhost/dashboard/TFG/backend/api/casa.php?id=${id}`)
         this.casa = res.data
-         console.log("Casa cargada:", this.casa) // ⬅️ Asegúrate de que llega bien el título
+
         this.$nextTick(() => {
           const fotos = this.fotosCasa
-          console.log("Rutas generadas:", fotos)
-
           if (fotos.length > 0) {
             this.fotoSeleccionada = fotos[0]
             const img = new Image()
             img.src = this.fotoSeleccionada
-            img.onload = () => console.log("Imagen cargada correctamente.")
-            img.onerror = () => console.warn("Imagen NO cargada.")
+            img.onload = () => console.log('Imagen cargada correctamente.')
+            img.onerror = () => console.warn('Imagen NO cargada.')
           }
         })
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Error al cargar casa:', err)
-      })
-  },
-  methods: {
-    verificarImagen(url) {
-      return new Promise((resolve) => {
-        const img = new Image()
-        img.onload = () => resolve(true)
-        img.onerror = () => resolve(false)
-        img.src = url
-      })
+      }
+    },
+    async cargarValoraciones(id_casa) {
+      try {
+        const res = await axios.get(
+          `http://localhost/dashboard/TFG/backend/api/getValoraciones.php?id_casa=${id_casa}`
+        )
+        this.valoraciones = res.data
+      } catch (err) {
+        console.error('Error al cargar valoraciones:', err)
+      }
+    },
+    async verificarReserva(id_casa) {
+      if (!this.id_usuario) return
+
+      try {
+        const res = await axios.get(
+          `http://localhost/dashboard/TFG/backend/api/haReservado.php?id_usuario=${this.id_usuario}&id_casa=${id_casa}`
+        )
+        this.puedeValorar = res.data.haReservado
+      } catch (err) {
+        console.error('Error al verificar reserva:', err)
+      }
+    },
+    async enviarValoracion() {
+      try {
+        const payload = {
+          id_usuario: this.id_usuario,
+          id_casa: this.casa.id_casa,
+          texto_valoracion: this.formularioValoracion.texto,
+          puntuacion: this.formularioValoracion.puntuacion,
+          dias_estancia: this.formularioValoracion.dias
+        }
+
+        const res = await axios.post(
+          'http://localhost/dashboard/TFG/backend/api/crearValoracion.php',
+          payload
+        )
+
+        if (res.data.success) {
+          alert('Valoración enviada correctamente')
+          this.formularioValoracion = { texto: '', puntuacion: 5, dias: 1 }
+          this.cargarValoraciones(this.casa.id_casa) // Recargar las valoraciones
+        } else {
+          alert('Error al enviar valoración')
+        }
+      } catch (err) {
+        console.error('Error al enviar valoración:', err)
+      }
+    },
+    rutaFotoPerfil(fotoPerfil) {
+      if (!fotoPerfil) {
+        return `${window.location.origin}/fotos_perfil/default.png`
+      }
+      return `${window.location.origin}/fotos_perfil/${fotoPerfil}`
     }
   }
 }
 </script>
+
 
 
 
@@ -236,12 +341,6 @@ export default {
   flex: 1 1 300px;
 }
 
-.bloque-valoracion {
-  height: 150px;
-  background-color: #aaa;
-  border-radius: 8px;
-}
-
 /* Botón */
 .boton-reserva {
   margin-top: 40px;
@@ -305,5 +404,100 @@ export default {
 .miniatura:hover {
   transform: scale(1.05);
   border-color: #0e0e0e;
+}
+
+.form-valoracion {
+  margin-top: 20px;
+  padding: 16px;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-valoracion h4 {
+  margin-bottom: 12px;
+}
+
+.form-valoracion textarea {
+  width: 100%;
+  height: 80px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.form-valoracion label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.form-valoracion select,
+.form-valoracion input[type='number'] {
+  padding: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-right: 10px;
+  width: 80px;
+}
+
+.form-valoracion button {
+  background-color: #444;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-valoracion button:hover {
+  background-color: #222;
+}
+
+.estrellas-clicables {
+  display: inline-flex;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ccc;
+  flex-direction: row; /* Asegura dirección normal */
+}
+
+.estrellas-clicables .estrella {
+  display: inline-block;
+  transition: color 0.2s ease;
+}
+
+.estrellas-clicables .estrella:hover,
+.estrellas-clicables .estrella:hover ~ .estrella {
+  color: #ccc; /* desmarcar las de la derecha */
+}
+
+.estrellas-clicables .estrella:hover,
+.estrellas-clicables .estrella:nth-child(-n + var(--hovered)) {
+  color: #ffcc00;
+}
+
+.estrellas-clicables .estrella.activa {
+  color: #ffcc00;
+}
+
+.valoraciones {
+  flex: 1 1 300px;
+  
+}
+
+.grid-valoraciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-top: 7%;
 }
 </style>

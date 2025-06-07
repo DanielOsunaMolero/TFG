@@ -58,9 +58,15 @@ export default {
 
 <style scoped>
 .navbar {
-  background-color: #84cca5;
-  padding: 12px 24px;
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.8) 100%);
+
+  backdrop-filter: blur(12px);
+  padding: 12px 30px;
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .nav-container {
@@ -75,62 +81,52 @@ export default {
 }
 
 .logo {
-  height: 60px;
-  margin-right: 20px;
+  height: 42px;
+  transition: transform 0.2s ease;
+}
+
+.logo-link:hover .logo {
+  transform: scale(1.05);
 }
 
 .nav-links {
   display: flex;
   align-items: center;
+  gap: 20px;
 }
 
 .nav-link {
-  color: rgb(0, 0, 0);
-  margin-right: 16px;
+  color: #333;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-size: 15px;
 }
 
 .nav-link:hover {
-  text-decoration-color: #07ec07;
-  background-color: #97f1bd;
-  border-radius: 20px;
-  padding: 5px 10px;
-}
-
-.nav-user {
-  color: #f6e27f;
-  margin-right: 16px;
+  background-color: rgba(96, 226, 155, 0.2);
+  color: #222;
 }
 
 .auth-button {
-  font-weight: bold;
+  font-weight: 500;
   padding: 8px 16px;
-  border-radius: 20px;
-  border: 2px solid white;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-  margin-left: 10px;
+  border-radius: 10px;
+  border: 1px solid #60e29b;
+  background-color: transparent;
+  color: #60e29b;
+  margin-left: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
+  font-size: 14px;
 }
 
 .auth-button:hover {
-  background-color: #ffffff;
-  color: #333;
-  border-color: #ccc;
-}
-
-/* Estilos diferenciados si quieres añadir variantes */
-.auth-button.login:hover {
   background-color: #60e29b;
-  border-color: #333;
-}
-
-.auth-button.register:hover {
-    background-color: #60e29b;
-  border-color: #333;
+  color: #fff;
+  border-color: #60e29b;
 }
 
 .foto-perfil {
@@ -138,14 +134,16 @@ export default {
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 16px;
-  border: 2px solid white;
+  margin-right: 12px;
+  border: 2px solid #60e29b;
   cursor: pointer;
-  transition: transform 0.2s ease;
-}
-.foto-perfil:hover {
-  transform: scale(1.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+.foto-perfil:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
 </style>

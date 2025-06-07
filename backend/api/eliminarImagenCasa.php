@@ -3,9 +3,17 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Encabezados CORS y JSON
+// Encabezados CORS
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
+
+// Manejar solicitud OPTIONS (preflight)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 // Leer datos del cuerpo de la solicitud
 $data = json_decode(file_get_contents("php://input"), true);

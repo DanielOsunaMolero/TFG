@@ -19,7 +19,6 @@
             <button @click="subirFoto">Subir Foto</button>
         </div>
 
-
         <h2>Mis Reservas</h2>
         <div v-if="reservas.length">
             <table>
@@ -42,17 +41,38 @@
             </table>
         </div>
         <p v-else>No tienes reservas aún.</p>
+
+        <!-- MIS VALORACIONES -->
+        <h2>Mis Valoraciones</h2>
+        <div v-if="valoracionesUsuario.length" class="grid-valoraciones">
+            <ValoracionCard
+                v-for="valoracion in valoracionesUsuario"
+                :key="valoracion.id_valoracion"
+                :fotoPerfil="rutaFotoPerfil(usuario.foto_perfil)"
+                :nombreUsuario="usuario.nombre"
+                :nombreCasa="valoracion.nombre_casa"
+                :textoValoracion="valoracion.texto_valoracion"
+                :puntuacion="Number(valoracion.puntuacion)"
+                :diasEstancia="valoracion.dias_estancia"
+            />
+        </div>
+        <p v-else>No has hecho valoraciones aún.</p>
     </div>
 </template>
 
 <script>
 import { mapMutations, mapState } from 'vuex';
+import ValoracionCard from '@/components/valoracionCard.vue'; // ✅ Importamos el componente
 
 export default {
+    components: {
+        ValoracionCard
+    },
     data() {
         return {
             reservas: [],
-            archivoFoto: null
+            archivoFoto: null,
+            valoracionesUsuario: [] // ✅ Array para las valoraciones
         };
     },
     computed: {
@@ -62,9 +82,7 @@ export default {
                 ? `http://localhost:8080/fotos_perfil/${this.usuario.foto_perfil}`
                 : 'https://via.placeholder.com/150x150?text=👤';
         }
-    }
-
-    ,
+    },
     methods: {
         ...mapMutations(['guardarUsuario']),
 
@@ -104,9 +122,14 @@ export default {
                 console.error("Error en subida:", err);
                 alert("Error al conectar con el servidor.");
             }
+        },
+
+        rutaFotoPerfil(fotoPerfil) {
+            return fotoPerfil
+                ? `${window.location.origin}/fotos_perfil/${fotoPerfil}`
+                : `${window.location.origin}/fotos_perfil/default.png`;
         }
     },
-
 
     mounted() {
         const id = this.usuario?.id_usuario || localStorage.getItem("id_usuario");
@@ -116,6 +139,7 @@ export default {
             return;
         }
 
+        // Cargar reservas
         fetch(`http://localhost/dashboard/TFG/backend/api/getReservasUsuario.php?id_usuario=${id}`)
             .then(res => {
                 if (!res.ok) throw new Error("Error al consultar las reservas");
@@ -127,9 +151,20 @@ export default {
             .catch(err => {
                 console.error("Error al cargar reservas:", err);
             });
+
+        // Cargar valoraciones del usuario
+        fetch(`http://localhost/dashboard/TFG/backend/api/getValoraciones.php?id_usuario=${id}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Error al consultar las valoraciones");
+                return res.json();
+            })
+            .then(data => {
+                this.valoracionesUsuario = data;
+            })
+            .catch(err => {
+                console.error("Error al cargar valoraciones:", err);
+            });
     }
-
-
 };
 </script>
 
@@ -254,5 +289,12 @@ tr:nth-child(even) {
 .estado-cancelada {
     color: #d11a2a;
     font-weight: bold;
+}
+
+.grid-valoraciones {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
 }
 </style>

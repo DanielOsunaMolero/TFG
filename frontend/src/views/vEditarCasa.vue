@@ -131,8 +131,9 @@ export default {
         const result = await res.json();
         if (result.success) {
           alert("Casa actualizada correctamente.");
-          this.$router.push("/gestion");
-        } else {
+          this.$router.go(0); // Recarga la misma página
+        }
+        else {
           alert("Error al actualizar.");
         }
       } catch (err) {
@@ -283,7 +284,7 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  max-width: 360px;
+  width: 50%;
 }
 
 .imagen-contenedor {
@@ -293,6 +294,7 @@ button:hover {
   overflow: hidden;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: #333 solid 1px;
 }
 
 .imagen-contenedor img {

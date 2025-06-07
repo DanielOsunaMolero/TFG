@@ -6,7 +6,10 @@
         @mostrar-registro="mostrarRegistro = true" 
       />
 
-      <router-view class="contenido-principal" />
+      <!-- Transición global con zoom-fade -->
+      <transition name="zoom-fade" mode="out-in">
+        <router-view class="contenido-principal" />
+      </transition>
 
       <Footer />
     </div>
@@ -53,8 +56,6 @@ export default {
 }
 </script>
 
-
-
 <style>
 html, body {
   margin: 0;
@@ -74,5 +75,23 @@ html, body {
 
 .contenido-principal {
   flex: 1;
+}
+
+/* Animación global - zoom-fade */
+.zoom-fade-enter-active,
+.zoom-fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.zoom-fade-enter-from,
+.zoom-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.zoom-fade-enter-to,
+.zoom-fade-leave-from {
+  opacity: 1;
+  transform: scale(1);
 }
 </style>

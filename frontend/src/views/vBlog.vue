@@ -1,83 +1,93 @@
 <template>
-  <div class="blog-container">
+  <div class="vblog">
+    <h1>Blog de Valoraciones</h1>
 
-    <!-- Entradas del blog -->
-    <div class="blog-grid">
-      <div class="blog-card" v-for="n in 4" :key="n">
-        <div class="blog-image"></div>
-        <div class="blog-content">
-          <h2>LOREM IPSUM</h2>
-          <p>
-            Lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum
-            lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum.
-          </p>
-        </div>
-      </div>
+    <div class="grid-valoraciones">
+      <valoracionCard
+        v-for="valoracion in valoraciones"
+        :key="valoracion.id_valoracion"
+        :fotoPerfil="rutaFotoPerfil(valoracion.foto_perfil)"
+        :nombreUsuario="valoracion.nombre_usuario"
+        :nombreCasa="valoracion.nombre_casa"
+        :textoValoracion="valoracion.texto_valoracion"
+        :puntuacion="Number(valoracion.puntuacion)"
+        :diasEstancia="valoracion.dias_estancia"
+      />
     </div>
 
-    <!-- Título decorativo inferior -->
-    <h1 class="blog-decorativo">Blog</h1>
-
+    <div v-if="valoraciones.length === 0" class="sin-valoraciones">
+      No hay valoraciones aún.
+    </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+import valoracionCard from '@/components/valoracionCard.vue'
+
 export default {
-  name: 'vBlog'
+  name: 'vBlog',
+  components: { valoracionCard },
+  data() {
+    return {
+      valoraciones: []
+    }
+  },
+  mounted() {
+    this.cargarValoraciones()
+  },
+  methods: {
+    async cargarValoraciones() {
+      try {
+        const response = await axios.get('http://localhost/dashboard/TFG/backend/api/getValoraciones.php')
+        this.valoraciones = response.data
+        console.log('Valoraciones cargadas:', this.valoraciones)
+      } catch (error) {
+        console.error('Error al cargar valoraciones:', error)
+      }
+    },
+    rutaFotoPerfil(fotoPerfil) {
+      if (!fotoPerfil) {
+        return `${window.location.origin}/fotos_perfil/default.png` // Ajusta si tienes imagen por defecto
+      }
+      return `${window.location.origin}/fotos_perfil/${fotoPerfil}`
+    }
+  }
 }
 </script>
 
 <style scoped>
-.blog-container {
-  background-color: #dcdcdc;
-  padding: 60px 20px;
-  position: relative;
+.vblog {
+  padding: 40px 20px;
+  background-color: #fafafa;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-/* Cuadrícula */
-.blog-grid {
+.vblog h1 {
+  text-align: center;
+  font-size: 36px;
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 30px;
+  letter-spacing: 0.5px;
+  font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+.grid-valoraciones {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  padding: 10px;
 }
 
-/* Tarjeta individual */
-.blog-card {
-  display: flex;
-  background-color: #6b6767;
-  color: white;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.blog-image {
-  width: 80px;
-  height: 80px;
-  background-color: white;
-  margin-right: 16px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
-.blog-content h2 {
-  margin: 0 0 8px;
-  font-size: 20px;
-}
-
-.blog-content p {
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-/* Título decorativo */
-.blog-decorativo {
-  position: absolute;
-  bottom: 20px;
-  right: 30px;
-  font-size: 48px;
-  color: #888;
-  font-weight: bold;
+.sin-valoraciones {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
   font-style: italic;
-  opacity: 0.3;
+  margin-top: 50px;
+  opacity: 0.8;
 }
 </style>
+

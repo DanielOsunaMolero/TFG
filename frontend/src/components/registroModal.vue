@@ -87,7 +87,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -95,60 +95,98 @@ export default {
 }
 
 .modal-box.registro {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  width: 320px;
+  background: #fff;
+  padding: 30px 24px;
+  border-radius: 20px;
+  width: 340px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  animation: fadeIn 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  text-align: center;
 }
 
 .modal-box h2 {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
+  text-align: center;
+  color: #222;
 }
 
 .modal-box input {
-  background-color: #cfc2c2;
-  border: none;
-  padding: 10px;
-  border-radius: 12px;
-  margin-bottom: 12px;
+  background-color: #f7f7f7;
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
   font-size: 14px;
+  transition: border 0.3s;
 }
+
+.modal-box input:focus {
+  outline: none;
+  border-color: #5bc597;
+  background-color: #fff;
+}
+
+.tipo-usuario {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 16px 0;
+}
+
+.tipo-usuario label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+}
+
+
 
 .acciones {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  margin: 12px 0;
+  margin-bottom: 16px;
+  color: #777;
 }
 
 .acciones a {
-  color: #333;
+  color: #555;
   text-decoration: none;
+  transition: color 0.3s;
 }
 
-.tipo-usuario {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 16px;
-  font-size: 14px;
-}
-
-.tipo-usuario input[type="radio"] {
-  margin-right: 6px;
+.acciones a:hover {
+  color: #333;
 }
 
 button {
-  padding: 10px 20px;
+  padding: 12px;
   border: none;
-  border-radius: 12px;
-  background-color: #a39494;
+  border-radius: 10px;
+  background-color: #5bc597;
   color: white;
   font-weight: bold;
+  font-size: 15px;
   cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #48a97d;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }
 </style>
+

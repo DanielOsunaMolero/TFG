@@ -15,6 +15,7 @@
     <LoginModal 
       v-if="mostrarLogin" 
       @cerrar="mostrarLogin = false" 
+      @login-exitoso="handleLoginExitoso"
     />
     <RegistroModal 
       v-if="mostrarRegistro" 
@@ -42,9 +43,17 @@ export default {
       mostrarLogin: false,
       mostrarRegistro: false
     }
+  },
+  methods: {
+    handleLoginExitoso() {
+      this.mostrarLogin = false;
+      // opcional: redireccionar o mostrar un mensaje global
+    }
   }
 }
 </script>
+
+
 
 <style>
 html, body {

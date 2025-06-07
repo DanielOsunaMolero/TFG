@@ -4,19 +4,54 @@
       <!-- Columna izquierda: Formulario -->
       <div class="columna-izquierda">
         <form class="formulario" @submit.prevent="procesarPago">
-          <h2>Información personal</h2>
-          <input type="text" v-model="nombre" placeholder="Nombre" required />
-          <input type="text" v-model="apellidos" placeholder="Apellidos" required />
-          <input type="text" v-model="direccion" placeholder="Dirección" required />
-          <input type="tel" v-model="telefono" placeholder="Teléfono" required />
+          <fieldset>
+            <legend>Información personal</legend>
 
-          <h2>Pago</h2>
-          <input type="text" v-model="tarjeta" placeholder="Nº Tarjeta" required />
-          <div class="fila">
-            <input type="text" v-model="vencimiento" placeholder="Fecha de Vencimiento" required />
-            <input type="text" v-model="cvv" placeholder="CVV" required />
-          </div>
-          <input type="text" v-model="titular" placeholder="Nombre del titular" required />
+            <label>Nombre
+              <input type="text" v-model="nombre" minlength="2" />
+            </label>
+
+            <label>Apellidos
+              <input type="text" v-model="apellidos" minlength="2" />
+            </label>
+
+            <label>Dirección
+              <input type="text" v-model="direccion" />
+            </label>
+
+            <label>Teléfono
+              <input type="tel" v-model="telefono" pattern="^[0-9]{9}$" />
+            </label>
+
+            <label>Email
+              <input type="email" v-model="email" />
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>Datos de pago</legend>
+
+            <label>Nº Tarjeta
+              <input type="text" v-model="tarjeta" />
+              <!-- pattern="^[0-9]{16}$"  -->
+            </label>
+
+            <div class="fila">
+              <label>Vencimiento
+                <input type="text" v-model="vencimiento" placeholder="MM/AA" />
+                <!-- pattern="^(0[1-9]|1[0-2])\/\d{2}$ -->
+              </label>
+
+              <label>CVV
+                <input type="text" v-model="cvv" />
+                <!-- pattern="^[0-9]{3}$ -->
+              </label>
+            </div>
+
+            <label>Nombre del titular
+              <input type="text" v-model="titular" minlength="5" />
+            </label>
+          </fieldset>
 
           <button type="submit">Reservar</button>
         </form>
@@ -24,31 +59,34 @@
 
       <!-- Columna derecha: Fotos + info casa + precio + calendario -->
       <div class="columna-derecha" v-if="casa">
-        <div class="galeria-fotos">
-          <img :src="imagenes[index1]" class="foto" alt="foto 1" />
-          <img :src="imagenes[index2]" class="foto" alt="foto 2" />
-        </div>
+        <section class="tarjeta-casa">
+          <div class="galeria">
+            <img :src="imagenes[index1]" class="foto-principal" alt="foto 1" />
+            <img :src="imagenes[index2]" class="foto-secundaria" alt="foto 2" />
+          </div>
 
-        <!-- Información casa y precio -->
-        <section class="info-casa">
-          <h2>{{ casa.titulo }}</h2>
-          <label>Días:
-            <input type="number" v-model.number="dias" min="1" @input="actualizarPrecio" />
-          </label>
-          <p class="precio">Total: {{ total }}€</p>
+          <div class="info-reserva">
+            <h2>{{ casa.titulo }}</h2>
+            <label>Días de estancia:
+              <input type="number" v-model.number="dias" min="1" @input="actualizarPrecio" />
+            </label>
+            <p class="precio-total">Total: <strong>{{ total }}€</strong></p>
+          </div>
 
-          <!-- Calendario funcional -->
-          <div class="calendario">
-  <DatePicker is-inline v-model="fechaSeleccionada" />
+          <div class="calendario-wrapper">
+  <h3>Selecciona el día de inicio</h3>
+  <DatePicker is-inline v-model="fecha_inicio" />
 </div>
-
 
         </section>
       </div>
 
+
     </main>
   </div>
 </template>
+
+
 
 <script>
 import { DatePicker } from 'v-calendar' // ✅ Importar componente
@@ -63,11 +101,13 @@ export default {
       apellidos: '',
       direccion: '',
       telefono: '',
+      email: '', // Validación de email
       tarjeta: '',
       vencimiento: '',
+      fecha_inicio: null, // Fecha de inicio seleccionada
       cvv: '',
       titular: '',
-      dias: 1,
+      dias: 1,  // Días de estancia
       total: 0,
       casa: null,
       imagenes: [],
@@ -97,8 +137,35 @@ export default {
   },
   methods: {
     procesarPago() {
-      alert("Reserva realizada con éxito");
-    },
+      const id_usuario = localStorage.getItem('id_usuario');
+      const fecha_inicio = this.fecha_inicio;
+      const fecha_fin = new Date(new Date(fecha_inicio).getTime() + (this.dias - 1) * 24 * 60 * 60 * 1000)
+        .toISOString().split('T')[0];
+
+      const reserva = {
+        id_usuario: parseInt(id_usuario),
+        id_casa: this.casa.id_casa,
+        fecha_inicio,
+        fecha_fin,
+        importe_total: this.total
+      };
+
+      fetch('http://localhost/dashboard/TFG/backend/api/reserva.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reserva)
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "ok") {
+            alert("Reserva enviada. El propietario la revisará.");
+            this.$router.push('/');
+          } else {
+            alert("Error al reservar: " + data.error);
+          }
+        });
+    }
+    ,
     actualizarPrecio() {
       this.total = (this.casa?.precio_noche || 0) * this.dias;
     },
@@ -130,34 +197,14 @@ export default {
   min-width: 300px;
 }
 
-.formulario input {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
+
 
 .formulario .fila {
   display: flex;
   gap: 10px;
 }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
 
-.galeria-fotos {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
 
 .foto {
   width: 50%;
@@ -166,36 +213,114 @@ button {
   border-radius: 8px;
 }
 
-.info-casa {
-  background-color: #ffffff;
+
+.formulario {
+  background-color: #fff;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.info-casa label,
-.info-casa .precio {
+.formulario fieldset {
+  border: none;
+  margin-bottom: 20px;
+}
+
+.formulario legend {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.formulario label {
   display: block;
-  margin-top: 10px;
-  font-size: 16px;
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: #333;
 }
 
-.calendario {
-  margin-top: 30px;
+.formulario input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  transition: box-shadow 0.2s ease;
+}
+
+
+.formulario input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3);
+}
+
+button {
+  background-color: #27ae60;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #219150;
+}
+
+
+.tarjeta-casa {
   background-color: #ffffff;
-  padding: 20px;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.galeria {
+  display: flex;
+  gap: 12px;
+}
+
+.foto-principal,
+.foto-secundaria {
+  flex: 1;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.info-reserva {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-reserva input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.precio-total {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.calendario-wrapper {
+  background-color: #f9f9f9;
+  padding: 16px;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-}
-.calendario .vc-container {
-  width: 100%;
-  max-width: 350px;
 }
 
-.calendario .vc-pane {
-  min-height: 320px;
+.calendario-wrapper h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #333;
 }
-
 </style>

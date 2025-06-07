@@ -59,9 +59,10 @@ try {
 
     // Insertar usuario
     $hash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $conexion->prepare("INSERT INTO usuario (nombre, email, contraseña, tipo, fecha_registro)
-                                VALUES (?, ?, ?, ?, CURDATE())");
-    $stmt->execute([$nombre, $email, $hash, $tipo]);
+    $stmt = $conexion->prepare("INSERT INTO usuario (nombre, email, password, tipo, fecha_registro, foto_perfil)
+                            VALUES (?, ?, ?, ?, CURDATE(), ?)");
+$stmt->execute([$nombre, $email, $hash, $tipo, 'default.jpg']);
+
 
     echo json_encode(["success" => true, "mensaje" => "Registro exitoso"]);
 

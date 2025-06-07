@@ -11,13 +11,19 @@
         <router-link v-if="esPropietario" to="/gestion" class="nav-link">Gestión</router-link>
 
         <template v-if="!estaAutenticado">
-  <button class="auth-button login" @click="$emit('mostrar-login')">Iniciar sesión</button>
-  <button class="auth-button register" @click="$emit('mostrar-registro')">Registro</button>
-</template>
-
+          <button class="auth-button login" @click="$emit('mostrar-login')">Iniciar sesión</button>
+          <button class="auth-button register" @click="$emit('mostrar-registro')">Registro</button>
+        </template>
 
         <template v-else>
-          <span class="nav-user">Hola, {{ usuario.nombre }}</span>
+          <router-link to="/perfil">
+            <img
+              class="foto-perfil"
+              :src="rutaFotoPerfil"
+              alt="Perfil"
+              title="Ir al perfil"
+            />
+          </router-link>
           <a href="#" @click.prevent="logout" class="nav-link">Cerrar sesión</a>
         </template>
       </div>
@@ -25,13 +31,19 @@
   </header>
 </template>
 
+
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex'
 
 export default {
   computed: {
     ...mapState(['usuario']),
-    ...mapGetters(['esPropietario', 'estaAutenticado'])
+    ...mapGetters(['esPropietario', 'estaAutenticado']),
+    rutaFotoPerfil() {
+      return this.usuario.foto_perfil
+        ? `http://localhost:8080/fotos_perfil/${this.usuario.foto_perfil}`
+        : 'https://via.placeholder.com/40x40?text=👤'
+    }
   },
   methods: {
     ...mapMutations(['cerrarSesion']),
@@ -42,6 +54,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .navbar {
@@ -119,5 +132,20 @@ export default {
     background-color: #60e29b;
   border-color: #333;
 }
+
+.foto-perfil {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 16px;
+  border: 2px solid white;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.foto-perfil:hover {
+  transform: scale(1.1);
+}
+
 
 </style>

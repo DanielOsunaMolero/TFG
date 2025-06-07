@@ -1,5 +1,4 @@
 <?php
-
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
@@ -9,7 +8,8 @@ if ($conexion->connect_error) {
     die(json_encode(["error" => "Conexión fallida"]));
 }
 
-$id_propietario = 1;
+// 🔁 Recoge el ID del propietario desde el parámetro GET
+$id_propietario = isset($_GET['id_propietario']) ? intval($_GET['id_propietario']) : 0;
 
 $sql = "SELECT * FROM casa_rural WHERE id_propietario = ?";
 $stmt = $conexion->prepare($sql);
@@ -27,34 +27,17 @@ function normalizarTitulo($titulo) {
 
 $casas = [];
 
-// 1. Obtener ruta completa
 $ruta_fotos = "C:/xampp/htdocs/dashboard/TFG/frontend/public/fotos/";
-
-
-if ($ruta_fotos && is_dir($ruta_fotos)) {
-    $todos_los_ficheros = scandir($ruta_fotos);
-    
-    
-} else {
-    $todos_los_ficheros = [];
-    
-}
+$todos_los_ficheros = (is_dir($ruta_fotos)) ? scandir($ruta_fotos) : [];
 
 while ($fila = $resultado->fetch_assoc()) {
     $id = $fila["id_casa"];
     $titulo = $fila["titulo"];
     $nombre_formateado = normalizarTitulo($titulo);
 
-    
-
     $imagen = "";
-
     foreach ($todos_los_ficheros as $fichero) {
-        
-        if (
-            preg_match('/^Foto_' . preg_quote($nombre_formateado) . '\(\d+\)\.(jpg|jpeg|png)$/i', $fichero)
-        ) {
-            
+        if (preg_match('/^Foto_' . preg_quote($nombre_formateado) . '\(\d+\)\.(jpg|jpeg|png)$/i', $fichero)) {
             $imagen = "http://localhost:8080/fotos/$fichero";
             break;
         }
@@ -69,4 +52,3 @@ while ($fila = $resultado->fetch_assoc()) {
 
 echo json_encode($casas);
 $conexion->close();
-?>

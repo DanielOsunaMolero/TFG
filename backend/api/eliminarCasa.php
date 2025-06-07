@@ -1,23 +1,35 @@
 <?php
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo json_encode(["error" => "Método no permitido"]);
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    http_response_code(200);
     exit;
 }
 
-$id = isset($_POST["id"]) ? intval($_POST["id"]) : 0;
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    echo json_encode(["success" => false, "message" => "Método no permitido"]);
+    exit;
+}
 
+if (!isset($_POST["id"])) {
+    echo json_encode(["success" => false, "message" => "ID no proporcionado"]);
+    exit;
+}
+
+$id = intval($_POST["id"]);
 if (!$id) {
-    echo json_encode(["error" => "ID inválido"]);
+    echo json_encode(["success" => false, "message" => "ID inválido"]);
     exit;
 }
 
 $conexion = new mysqli("localhost", "root", "", "weekendhouse");
 
 if ($conexion->connect_error) {
-    die(json_encode(["error" => "Conexión fallida"]));
+    echo json_encode(["success" => false, "message" => "Conexión fallida"]);
+    exit;
 }
 
 // Obtener el título de la casa
@@ -32,6 +44,15 @@ $titulo = $row ? $row["titulo"] : null;
 $stmt = $conexion->prepare("DELETE FROM casa_rural WHERE id_casa = ?");
 $stmt->bind_param("i", $id);
 $exito = $stmt->execute();
+
+if (!$exito) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Error al eliminar en la base de datos: " . $stmt->error
+    ]);
+    exit;
+}
+
 
 // Si tenía imágenes, eliminar los archivos del disco
 if ($exito && $titulo) {

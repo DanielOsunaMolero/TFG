@@ -11,8 +11,8 @@ import vSobre from '../views/vSobreNosotros(opcional).vue'
 import vCrearCasa from '../views/vCrearCasa.vue'
 import vEditarCasa from '../views/vEditarCasa.vue'
 import vReservar from '../views/vReservar.vue'
-
-
+import vGestionReservas from '../views/vGestionReservas.vue'
+import vPerfil from '../views/vPerfil.vue'
 const routes = [
   { path: '/', component: vInicio },
   { path: '/casa/:id', component: vCasaDetalle },
@@ -24,7 +24,9 @@ const routes = [
   { path: '/sobre', component: vSobre },
   { path: "/crear-casa", component: vCrearCasa },
   { path: "/editar-casa/:id", component: vEditarCasa },
-  { path: "/reservar/:id", component: vReservar }
+  { path: "/reservar/:id", component: vReservar },
+  { path: "/gestion-reservas", component: vGestionReservas },
+    { path: "/perfil", component: vPerfil }
 ]
 
 const router = createRouter({

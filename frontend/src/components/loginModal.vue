@@ -32,28 +32,31 @@ export default {
       }
 
       try {
-        const res = await fetch('http://localhost/dashboard/TFG/backend/api/login.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("http://localhost/dashboard/TFG/backend/api/login.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: this.email,
             password: this.password
           })
-        })
+        });
 
-        const data = await res.json()
+        const data = await res.json();
+        console.log("Respuesta del servidor:", data)
 
         if (data.success && data.usuario) {
           this.guardarUsuario(data.usuario)
+          localStorage.setItem("id_usuario", data.usuario.id_usuario)
+          localStorage.setItem("usuario", JSON.stringify(data.usuario))
           alert("Sesión iniciada correctamente.")
-          this.$emit('cerrar')
+          this.$emit("cerrar")  // ✅ Cierra el modal
         } else {
-          alert(data.error || "Login incorrecto.")
+          alert(data.message || "Credenciales incorrectas")
         }
 
       } catch (error) {
         console.error("Error al iniciar sesión:", error)
-        alert("Error de conexión con el servidor.")
+        alert("Error al conectar con el servidor.")
       }
     }
   }
@@ -75,31 +78,61 @@ export default {
 }
 
 .modal-box.login {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  width: 300px;
+  background: #fff;
+  padding: 30px 24px;
+  border-radius: 20px;
+  width: 320px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .modal-box h2 {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   font-style: italic;
+  font-weight: 600;
+  font-size: 22px;
+  color: #222;
+  text-align: center;
 }
 
 .modal-box input {
-  width: 100%;
-  margin-bottom: 12px;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  background: #d3c7c7;
+  width: 90%;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  transition: border 0.3s;
+  font-size: 14px;
+}
+
+.modal-box input:focus {
+  outline: none;
+  border-color: #5bc597;
+  background: #fff;
 }
 
 .modal-box button {
-  background: #aaa;
-  padding: 10px 20px;
+  background: #5bc597;
+  color: white;
+  padding: 12px 20px;
   border: none;
   border-radius: 10px;
   width: 100%;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.modal-box button:hover {
+  background: #4cb184;
+}
+
+/* Animación de entrada */
+@keyframes fadeIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }
 </style>

@@ -100,8 +100,10 @@
 
 
 <script>
-import axios from 'axios'
-import valoracionCard from '@/components/valoracionCard.vue'
+import axios from 'axios';
+import valoracionCard from '@/components/valoracionCard.vue';
+import { API_BASE, IMG_BASE, IMG_PERFIL_BASE } from '@/config.js';
+import { useToast } from 'vue-toastification'; // ✅ Importamos useToast
 
 export default {
   name: 'vCasaDetalle',
@@ -118,23 +120,23 @@ export default {
         dias: 1
       },
       id_usuario: null
-    }
+    };
   },
   computed: {
     serviciosIzquierda() {
-      if (!this.casa?.servicios) return []
-      const servicios = this.casa.servicios.split(',')
-      const mitad = Math.ceil(servicios.length / 2)
-      return servicios.slice(0, mitad)
+      if (!this.casa?.servicios) return [];
+      const servicios = this.casa.servicios.split(',');
+      const mitad = Math.ceil(servicios.length / 2);
+      return servicios.slice(0, mitad);
     },
     serviciosDerecha() {
-      if (!this.casa?.servicios) return []
-      const servicios = this.casa.servicios.split(',')
-      const mitad = Math.ceil(servicios.length / 2)
-      return servicios.slice(mitad)
+      if (!this.casa?.servicios) return [];
+      const servicios = this.casa.servicios.split(',');
+      const mitad = Math.ceil(servicios.length / 2);
+      return servicios.slice(mitad);
     },
     fotosCasa() {
-      if (!this.casa) return []
+      if (!this.casa) return [];
 
       const normalizar = (str) =>
         (str || '')
@@ -142,70 +144,70 @@ export default {
           .replace(/[\u0300-\u036f]/g, '')
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '_')
-          .replace(/^_+|_+$/g, '')
+          .replace(/^_+|_+$/g, '');
 
-      const titulo = normalizar(this.casa.titulo)
+      const titulo = normalizar(this.casa.titulo);
 
-      const fotos = []
+      const fotos = [];
       for (let i = 1; i <= 6; i++) {
-        const ruta = `${window.location.origin}/fotos/Foto_${titulo}(${i}).jpg`
-        fotos.push(ruta)
+        const ruta = `${IMG_BASE}Foto_${titulo}(${i}).jpg`;
+        fotos.push(ruta);
       }
 
-      return fotos
+      return fotos;
     }
   },
   mounted() {
-    const id = this.$route.params.id
-    this.id_usuario = localStorage.getItem('id_usuario') // O Vuex
+    const id = this.$route.params.id;
+    this.id_usuario = localStorage.getItem('id_usuario');
 
-    this.cargarCasa(id)
-    this.cargarValoraciones(id)
-    this.verificarReserva(id)
+    this.cargarCasa(id);
+    this.cargarValoraciones(id);
+    this.verificarReserva(id);
   },
   methods: {
     async cargarCasa(id) {
       try {
-        const res = await axios.get(`http://localhost/dashboard/TFG/backend/api/casa.php?id=${id}`)
-        this.casa = res.data
+        const res = await axios.get(`${API_BASE}casa.php?id=${id}`);
+        this.casa = res.data;
 
         this.$nextTick(() => {
-          const fotos = this.fotosCasa
+          const fotos = this.fotosCasa;
           if (fotos.length > 0) {
-            this.fotoSeleccionada = fotos[0]
-            const img = new Image()
-            img.src = this.fotoSeleccionada
-            img.onload = () => console.log('Imagen cargada correctamente.')
-            img.onerror = () => console.warn('Imagen NO cargada.')
+            this.fotoSeleccionada = fotos[0];
+            const img = new Image();
+            img.src = this.fotoSeleccionada;
+            img.onload = () => console.log('Imagen cargada correctamente.');
+            img.onerror = () => console.warn('Imagen NO cargada.');
           }
-        })
+        });
       } catch (err) {
-        console.error('Error al cargar casa:', err)
+        console.error('Error al cargar casa:', err);
       }
     },
     async cargarValoraciones(id_casa) {
       try {
-        const res = await axios.get(
-          `http://localhost/dashboard/TFG/backend/api/getValoraciones.php?id_casa=${id_casa}`
-        )
-        this.valoraciones = res.data
+        const res = await axios.get(`${API_BASE}getValoraciones.php?id_casa=${id_casa}`);
+        this.valoraciones = res.data;
       } catch (err) {
-        console.error('Error al cargar valoraciones:', err)
+        console.error('Error al cargar valoraciones:', err);
       }
     },
     async verificarReserva(id_casa) {
-      if (!this.id_usuario) return
+      if (!this.id_usuario) return;
 
       try {
         const res = await axios.get(
-          `http://localhost/dashboard/TFG/backend/api/haReservado.php?id_usuario=${this.id_usuario}&id_casa=${id_casa}`
-        )
-        this.puedeValorar = res.data.haReservado
+          `${API_BASE}haReservado.php?id_usuario=${this.id_usuario}&id_casa=${id_casa}`
+        );
+        this.puedeValorar = res.data.haReservado;
       } catch (err) {
-        console.error('Error al verificar reserva:', err)
+        console.error('Error al verificar reserva:', err);
       }
     },
     async enviarValoracion() {
+      const toast = useToast(); // ✅ Inicializamos toast
+
       try {
         const payload = {
           id_usuario: this.id_usuario,
@@ -213,33 +215,34 @@ export default {
           texto_valoracion: this.formularioValoracion.texto,
           puntuacion: this.formularioValoracion.puntuacion,
           dias_estancia: this.formularioValoracion.dias
-        }
+        };
 
-        const res = await axios.post(
-          'http://localhost/dashboard/TFG/backend/api/crearValoracion.php',
-          payload
-        )
+        const res = await axios.post(`${API_BASE}crearValoracion.php`, payload);
+
+        console.log("Respuesta crearValoracion:", res.data); // ✅ opcional depurar
 
         if (res.data.success) {
-          alert('Valoración enviada correctamente')
-          this.formularioValoracion = { texto: '', puntuacion: 5, dias: 1 }
-          this.cargarValoraciones(this.casa.id_casa) // Recargar las valoraciones
+          toast.success("✅ Valoración enviada correctamente.");
+          this.formularioValoracion = { texto: '', puntuacion: 5, dias: 1 };
+          this.cargarValoraciones(this.casa.id_casa);
         } else {
-          alert('Error al enviar valoración')
+          toast.error("❌ Error al enviar valoración.");
         }
       } catch (err) {
-        console.error('Error al enviar valoración:', err)
+        console.error('Error al enviar valoración:', err);
+        toast.error("❌ Error de conexión al enviar valoración.");
       }
     },
     rutaFotoPerfil(fotoPerfil) {
-      if (!fotoPerfil) {
-        return `${window.location.origin}/fotos_perfil/default.png`
-      }
-      return `${window.location.origin}/fotos_perfil/${fotoPerfil}`
+      return fotoPerfil
+        ? `${IMG_PERFIL_BASE}${fotoPerfil}`
+        : `${IMG_PERFIL_BASE}default.png`;
     }
   }
-}
+};
 </script>
+
+
 
 
 

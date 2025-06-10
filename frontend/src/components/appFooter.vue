@@ -1,39 +1,35 @@
 <template>
-  <footer class="footer">
-    <div class="footer-content">
+  <footer class="nuevo-footer">
+    <div class="footer-wrapper">
 
-      <!-- Columna izquierda -->
-      <div class="footer-col">
-        <h3>Contacto</h3>
-        <p>Teléfono: +34 123 456 789</p>
-        <p>Email: </p>
+      <div class="footer-left">
+        <div class="footer-social">
+          <a href="#" class="social-icon">
+            <font-awesome-icon :icon="['fab', 'instagram']" /> Instagram
+          </a>
+          <a href="#" class="social-icon">
+            <font-awesome-icon :icon="['fab', 'facebook']" /> Facebook
+          </a>
+          <a href="#" class="social-icon">
+            <font-awesome-icon :icon="['fas', 'globe']" /> Web
+          </a>
+        </div>
       </div>
 
-      <!-- Columna central -->
-      <div class="footer-center">
-        <div class="footer-logo">
-          <img src="@/assets/logo.png" alt="Logo" style="width: 100%; height: auto;" />
-        </div>
-        <p></p>
+      <div class="footer-contact">
+        <p>
+          <font-awesome-icon :icon="['fas', 'phone']" style="margin-right: 8px;" />
+          +34 123 456 789
+        </p>
+        <p>
+          <font-awesome-icon :icon="['fas', 'envelope']" style="margin-right: 8px;" />
+          contacto@weekendhouse.com
+        </p>
       </div>
 
-      <!-- Columna derecha -->
-      <div class="footer-col right">
-        <div class="footer-item">
-          
-          <p>Sobre nosotros</p>
-          <div class="circle"></div>
-        </div>
-        <div class="footer-item">
-          
-          <p>Instagram</p>
-          <div class="circle"></div>
-        </div>
-        <div class="footer-item">
-          
-          <p>Facebook</p>
-          <div class="circle"></div>
-        </div>
+
+      <div class="footer-logo-area">
+        <img src="@/assets/logo.png" alt="Logo" />
       </div>
 
     </div>
@@ -47,109 +43,133 @@ export default {
 </script>
 
 <style scoped>
-.footer {
-background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.8) 100%);
+.nuevo-footer {
+  background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.95) 100%);
+  color: #222;
+  padding: 30px 30px;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
 
-  backdrop-filter: blur(12px);
-  color: #333;
-  padding: 30px 20px;
-  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-weight: 500;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.footer-content {
+.footer-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  text-align: left;
   max-width: 1200px;
   margin: 0 auto;
   flex-wrap: wrap;
   gap: 20px;
+  padding: 0 10px;
 }
 
-.footer-col {
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   flex: 1;
   min-width: 200px;
 }
 
-.footer-col.right {
-  text-align: left;
+.footer-left .marca {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 14px;
 }
 
-.footer-col p,
-.footer-col h3 {
-  margin: 6px 0;
-  color: #444;
-  font-weight: 500;
-}
-
-.footer-col h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: #222;
-}
-
-.footer-center {
-  flex: 1;
+.footer-social {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.footer-logo {
-  width: 80px;
-  height: 80px;
-  background-color: #ffffff;
-  border-radius: 50%;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.footer-logo img {
-  width: 100%;
-  height: auto;
-}
-
-.footer-logo:hover {
-  transform: scale(1.05);
-}
-
-.footer-item {
+.footer-social .social-icon {
+  text-decoration: none;
+  color: #222;
+  margin: 6px 0;
+  font-size: 14px;
+  transition: color 0.3s ease;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   gap: 8px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: color 0.3s ease;
 }
 
-.footer-item p {
-  transition: color 0.3s ease;
-}
-
-.footer-item:hover p {
+.footer-social .social-icon:hover {
   color: #60e29b;
 }
 
-.circle {
-  width: 6px;
-  height: 6px;
-  background-color: #60e29b;
-  border-radius: 50%;
-  transition: transform 0.2s ease;
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex: 1;
+  min-width: 220px;
+  max-width: 300px;
 }
 
-.footer-item:hover .circle {
-  transform: scale(1.2);
+.footer-contact h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+.footer-contact p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  align-items: center;
 }
 
 
+.footer-logo-area {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex: 1;
+  min-width: 150px;
+}
+
+.footer-logo-area img {
+  width: 80px;
+  height: auto;
+  opacity: 0.9;
+  transition: transform 0.3s ease;
+}
+
+.footer-logo-area img:hover {
+  transform: scale(1.05);
+}
+
+
+@media (max-width: 768px) {
+  .footer-wrapper {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .footer-left {
+    align-items: center;
+  }
+
+  .footer-social {
+    align-items: center;
+  }
+
+  .footer-contact {
+    align-items: center;
+  }
+
+  .footer-logo-area {
+    justify-content: center;
+  }
+
+  .footer-logo-area img {
+    width: 60px;
+  }
+}
 </style>

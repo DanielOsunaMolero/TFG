@@ -12,7 +12,9 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { API_BASE } from '@/config.js';
+import { mapMutations } from 'vuex';
+import { useToast } from 'vue-toastification'; // ✅ añadido
 
 export default {
   name: 'LoginModal',
@@ -20,21 +22,23 @@ export default {
     return {
       email: '',
       password: ''
-    }
+    };
   },
   methods: {
-    ...mapMutations(['guardarUsuario']),
+    ...mapMutations(['guardarUsuario']), // ✅ usamos Vuex
 
     async iniciarSesion() {
+      const toast = useToast(); // ✅ inicializamos toast
+
       if (!this.email || !this.password) {
-        alert("Introduce tu correo y contraseña.")
-        return
+        toast.error('❌ Introduce tu correo y contraseña.');
+        return;
       }
 
       try {
-        const res = await fetch("http://localhost/dashboard/TFG/backend/api/login.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        const res = await fetch(`${API_BASE}login.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: this.email,
             password: this.password
@@ -42,26 +46,34 @@ export default {
         });
 
         const data = await res.json();
-        console.log("Respuesta del servidor:", data)
+        console.log("Respuesta del servidor:", data); // ✅ opcional depuración
 
         if (data.success && data.usuario) {
-          this.guardarUsuario(data.usuario)
-          localStorage.setItem("id_usuario", data.usuario.id_usuario)
-          localStorage.setItem("usuario", JSON.stringify(data.usuario))
-          alert("Sesión iniciada correctamente.")
-          this.$emit("cerrar")  // ✅ Cierra el modal
+          // ✅ Guardar sesión
+          this.guardarUsuario(data.usuario);
+          localStorage.setItem('id_usuario', data.usuario.id_usuario);
+          localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+          // ✅ Cerrar modal
+          this.$emit('cerrar');
+
+          // ✅ Toast
+          toast.success('✅ Sesión iniciada correctamente.');
+
         } else {
-          alert(data.message || "Credenciales incorrectas")
+          toast.error(data.message || '❌ Credenciales incorrectas.');
         }
 
       } catch (error) {
-        console.error("Error al iniciar sesión:", error)
-        alert("Error al conectar con el servidor.")
+        console.error('Error al iniciar sesión:', error);
+        toast.error('❌ Error al conectar con el servidor.');
       }
     }
   }
-}
+};
 </script>
+
+
 
 <style scoped>
 .modal-overlay {

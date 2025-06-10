@@ -60,11 +60,19 @@ try {
     // Insertar usuario
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $conexion->prepare("INSERT INTO usuario (nombre, email, password, tipo, fecha_registro, foto_perfil)
-                            VALUES (?, ?, ?, ?, CURDATE(), ?)");
-$stmt->execute([$nombre, $email, $hash, $tipo, 'default.jpg']);
+                                VALUES (?, ?, ?, ?, CURDATE(), ?)");
+    $stmt->execute([$nombre, $email, $hash, $tipo, 'default.jpg']);
 
+    // ✅ Obtener el usuario recién insertado
+    $id_usuario = $conexion->lastInsertId();
 
-    echo json_encode(["success" => true, "mensaje" => "Registro exitoso"]);
+    $stmt = $conexion->prepare("SELECT id_usuario, nombre, email, tipo, fecha_registro, foto_perfil
+                                FROM usuario WHERE id_usuario = ?");
+    $stmt->execute([$id_usuario]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // ✅ Devolver usuario en la respuesta
+    echo json_encode(["success" => true, "usuario" => $usuario]);
 
 } catch (Exception $e) {
     http_response_code(500);

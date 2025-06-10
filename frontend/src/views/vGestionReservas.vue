@@ -4,19 +4,32 @@
 
     <div v-if="reservas.length" class="reserva-lista">
       <div class="reserva-card" v-for="r in reservas" :key="r.id_reserva">
-        <img :src="'http://localhost:8080/fotos_perfil/' + r.foto_perfil" alt="Foto" class="foto-reserva" />
-
+        <img :src="getFotoPerfilUrl(r.foto_perfil)" alt="Foto" class="foto-reserva" />
 
         <div class="info">
           <p><strong>{{ r.nombre_usuario }}</strong></p>
-          <p>🏠 {{ r.titulo_casa }}</p>
-          <p>📅 {{ r.fecha_inicio }} - {{ calcularDias(r.fecha_inicio, r.fecha_fin) }} días</p>
-          <p>📌 Estado: <span :class="'estado ' + r.estado">{{ r.estado }}</span></p>
+          <p>
+            <font-awesome-icon :icon="['fas', 'home']" style="margin-right: 6px;" />
+            {{ r.titulo_casa }}
+          </p>
+          <p>
+            <font-awesome-icon :icon="['fas', 'calendar-alt']" style="margin-right: 6px;" />
+            {{ r.fecha_inicio }} → {{ r.fecha_fin }} ({{ calcularDias(r.fecha_inicio, r.fecha_fin) }} días)
+          </p>
+          <p>
+            <font-awesome-icon :icon="['fas', 'thumbtack']" style="margin-right: 6px;" />
+            Estado:
+            <span :class="'estado ' + r.estado">{{ r.estado }}</span>
+          </p>
         </div>
 
         <div class="acciones" v-if="r.estado === 'pendiente'">
-          <button @click="cambiarEstado(r.id_reserva, 'confirmada')">✅</button>
-          <button @click="cambiarEstado(r.id_reserva, 'cancelada')">❌</button>
+          <button @click="cambiarEstado(r.id_reserva, 'confirmada')">
+            <font-awesome-icon :icon="['fas', 'check']" />
+          </button>
+          <button @click="cambiarEstado(r.id_reserva, 'cancelada')">
+            <font-awesome-icon :icon="['fas', 'times']" />
+          </button>
         </div>
       </div>
     </div>
@@ -26,7 +39,11 @@
 </template>
 
 
+
 <script>
+import { API_BASE, IMG_PERFIL_BASE } from '@/config.js';
+import { useToast } from 'vue-toastification'; // ✅ Importamos useToast
+
 export default {
   data() {
     return {
@@ -35,77 +52,98 @@ export default {
   },
   mounted() {
     const id_propietario = localStorage.getItem('id_usuario');
-    fetch(`http://localhost/dashboard/TFG/backend/api/reserva.php?id_propietario=${id_propietario}`)
+    fetch(`${API_BASE}reserva.php?id_propietario=${id_propietario}`)
       .then(res => res.json())
       .then(data => this.reservas = data);
   },
   methods: {
-  calcularDias(inicio, fin) {
-    const d1 = new Date(inicio);
-    const d2 = new Date(fin);
-    return Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-  },
+    calcularDias(inicio, fin) {
+      const d1 = new Date(inicio);
+      const d2 = new Date(fin);
+      return Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+    },
 
-  cambiarEstado(id, nuevoEstado) {
-    if (nuevoEstado === 'cancelada') {
-      // Lógica nueva: eliminar la reserva
-      fetch('http://localhost/dashboard/TFG/backend/api/cancelarReserva.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_reserva: id })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // Eliminar del array de reservas
-          this.reservas = this.reservas.filter(r => r.id_reserva !== id);
-          alert("Reserva cancelada correctamente.");
-        } else {
-          alert(data.message || "Error al cancelar la reserva.");
-        }
-      })
-      .catch(err => {
-        console.error("Error al cancelar:", err);
-        alert("Error de conexión.");
-      });
+    cambiarEstado(id, nuevoEstado) {
+      const toast = useToast(); // ✅ Inicializamos toast
 
-    } else {
-      // Confirmar reserva
-      fetch('http://localhost/dashboard/TFG/backend/api/reserva.php', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `id_reserva=${id}&estado=${nuevoEstado}`
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "ok") {
-          this.reservas = this.reservas.map(r =>
-            r.id_reserva === id ? { ...r, estado: nuevoEstado } : r
-          );
-        }
-      });
+      if (nuevoEstado === 'cancelada') {
+        // Eliminar la reserva
+        fetch(`${API_BASE}cancelarReserva.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_reserva: id })
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log("Respuesta cancelarReserva:", data); // opcional depurar
+            if (data.success) {
+              this.reservas = this.reservas.filter(r => r.id_reserva !== id);
+              toast.success("✅ Reserva cancelada correctamente.");
+            } else {
+              toast.error(data.message || "❌ Error al cancelar la reserva.");
+            }
+          })
+          .catch(err => {
+            console.error("Error al cancelar:", err);
+            toast.error("❌ Error de conexión al cancelar reserva.");
+          });
+
+      } else {
+        // Confirmar reserva
+        fetch(`${API_BASE}reserva.php`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `id_reserva=${id}&estado=${nuevoEstado}`
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log("Respuesta confirmarReserva:", data); // opcional depurar
+            if (data.status === "ok") {
+              this.reservas = this.reservas.map(r =>
+                r.id_reserva === id ? { ...r, estado: nuevoEstado } : r
+              );
+              toast.success("✅ Reserva confirmada correctamente."); // ✅ añadimos toast
+            } else {
+              toast.error("❌ Error al confirmar la reserva.");
+            }
+          })
+          .catch(err => {
+            console.error("Error al confirmar:", err);
+            toast.error("❌ Error de conexión al confirmar reserva.");
+          });
+      }
+    },
+
+    getFotoPerfilUrl(nombre) {
+      return nombre
+        ? `${IMG_PERFIL_BASE}${nombre}`
+        : `${IMG_PERFIL_BASE}default.jpg`;
     }
-  },
-  getFotoPerfilUrl(nombre) {
-    return nombre
-      ? `http://localhost:8080/fotos_perfil/${nombre}`
-      : 'https://via.placeholder.com/60x60?text=👤';
   }
-}
-
-}
+};
 </script>
+
+
 
 <style scoped>
 .gestion-reservas {
-  padding: 20px;
-  
+  padding: 30px 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.gestion-reservas h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
 }
 
 .reserva-lista {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   justify-content: center;
   align-items: center;
 }
@@ -113,122 +151,120 @@ export default {
 .reserva-card {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #d7eeb2;
+  justify-content: space-between;
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px;
   gap: 20px;
-  transition: transform 0.2s ease;
-  width: 60%;
-  border: solid black 1px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 90%;
+  max-width: 700px;
+  border: none;
 }
 
 .reserva-card:hover {
   transform: scale(1.01);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
-.foto-usuario {
-  width: 60px;
-  height: 60px;
-  border-radius: 100px;
+.foto-reserva {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ccc;
+  flex-shrink: 0;
+  border: 2px solid #60e29b;
 }
 
 .info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #444;
+  font-size: 15px;
+}
+
+.info p {
+  margin: 0;
 }
 
 .estado {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
   font-weight: bold;
   text-transform: capitalize;
+  color: white;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .estado.pendiente {
-  color: orange;
+  background-color: #f39c12;
 }
+
 .estado.confirmada {
-  color: green;
+  background-color: #27ae60;
 }
+
 .estado.cancelada {
-  color: red;
+  background-color: #e74c3c;
 }
 
-.acciones button {
-  background: none;
-  font-size: 24px;
-  border: none;
-  cursor: pointer;
-  margin: 0 5px;
-  transition: transform 0.1s ease;
-}
-.acciones button:hover {
-  transform: scale(1.2);
-}
-
-.tarjeta-reserva {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 16px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.foto-reserva {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 16px;
-  flex-shrink: 0;
-}
-
-.info-reserva {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.estado {
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-.botones-acciones {
+.acciones {
   display: flex;
   gap: 10px;
 }
 
-.boton-icono {
-  font-size: 20px;
-  background: none;
+.acciones button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   border: none;
+  font-size: 18px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.boton-icono:hover {
+.acciones button:first-child {
+  background-color: #60e29b;
+  color: white;
+}
+
+.acciones button:last-child {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.acciones button:hover {
   transform: scale(1.2);
+  opacity: 0.9;
 }
 
-.boton-icono.confirmar {
-  color: green;
-}
-
-.boton-icono.cancelar {
-  color: red;
-}
-h1{
+p {
   text-align: center;
-  margin-bottom: 20px;
-  font-style: italic;
+  color: #666;
+  margin-top: 20px;
 }
 
-</style>
+/* Responsive para móvil */
+@media (max-width: 768px) {
+  .reserva-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px;
+  }
 
+  .info {
+    align-items: center;
+  }
+
+  .acciones {
+    justify-content: center;
+    width: 100%;
+  }
+}
+</style>

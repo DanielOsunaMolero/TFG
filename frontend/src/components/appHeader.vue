@@ -34,34 +34,38 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex'
+import { IMG_PERFIL_BASE } from '@/config.js'; // ✅ esta línea te falta
 
 export default {
   computed: {
     ...mapState(['usuario']),
     ...mapGetters(['esPropietario', 'estaAutenticado']),
     rutaFotoPerfil() {
-      return this.usuario.foto_perfil
-        ? `http://localhost:8080/fotos_perfil/${this.usuario.foto_perfil}`
-        : 'https://via.placeholder.com/40x40?text=👤'
-    }
+  return this.usuario.foto_perfil
+    ? `${IMG_PERFIL_BASE}${this.usuario.foto_perfil}`
+    : `${IMG_PERFIL_BASE}default.jpg`;
+}
   },
   methods: {
     ...mapMutations(['cerrarSesion']),
     logout() {
-      this.cerrarSesion()
-      this.$router.push('/')
+      this.cerrarSesion();
+      this.$router.push('/');
     }
   }
 }
 </script>
 
 
+
 <style scoped>
 .navbar {
-background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.8) 100%);
-
+  height: 70px;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.8) 100%);
   backdrop-filter: blur(12px);
-  padding: 12px 30px;
   font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
   position: sticky;
@@ -73,6 +77,10 @@ background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.8) 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .logo-link {
@@ -81,12 +89,13 @@ background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.8) 100%);
 }
 
 .logo {
-  height: 42px;
+  height: 55px;
+  max-height: 60px;
   transition: transform 0.2s ease;
 }
 
 .logo-link:hover .logo {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .nav-links {
@@ -145,5 +154,27 @@ background: linear-gradient(90deg, #60e29b 0%, rgba(255, 255, 255, 0.8) 100%);
   transform: scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+@media (max-width: 768px) {
+  .nav-container {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .auth-button, .nav-link {
+    width: 100%;
+    text-align: left;
+  }
+
+  .foto-perfil {
+    margin-right: 0;
+  }
+
+  .logo {
+    height: 42px;
+    max-height: 50px;
+  }
+}
+
 
 </style>

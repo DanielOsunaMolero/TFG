@@ -1,31 +1,45 @@
 <template>
   <div class="crear-casa">
     <h1>Crear Nueva Casa Rural</h1>
-    <form @submit.prevent="enviarFormulario" enctype="multipart/form-data">
-      <label>Título:</label>
-      <input type="text" v-model="form.titulo" required />
+    <form @submit.prevent="enviarFormulario" enctype="multipart/form-data" class="form-grid">
+      <label class="full-width">
+        <input type="text" v-model="form.titulo" placeholder="Título de la casa rural" required />
+      </label>
 
-      <label>Descripción:</label>
-      <textarea v-model="form.descripcion" required></textarea>
+      <label class="full-width">
+        <textarea v-model="form.descripcion" placeholder="Descripción detallada" required></textarea>
+      </label>
 
-      <label>Ubicación:</label>
-      <input type="text" v-model="form.ubicacion" required />
+      <label>
+        <input type="text" v-model="form.ubicacion" placeholder="Ubicación" required />
+      </label>
 
-      <label>Precio por noche (€):</label>
-      <input type="number" v-model="form.precio" min="0" required />
+      <label>
+        <input type="number" v-model="form.precio" min="0" placeholder="Precio por noche (€)" required />
+      </label>
 
-      <label>Servicios:</label>
-      <input type="text" v-model="form.servicios" placeholder="Ej: Wifi, Piscina" />
+      <label>
+        <input type="text" v-model="form.servicios" placeholder="Ejemplo: Wifi, Piscina, Parking" />
+      </label>
 
-      <label>Imágenes (puedes seleccionar varias):</label>
-      <input type="file" multiple @change="handleArchivos" accept="image/*" required />
+      <label class="file-label">
+        <font-awesome-icon :icon="['fas', 'camera']" style="margin-right: 6px;" />
+        Seleccionar imágenes...
+        <input type="file" multiple @change="handleArchivos" accept="image/*" required />
+      </label>
 
-      <button type="submit">Guardar Casa</button>
+      <div class="full-width center-btn">
+        <button type="submit">Guardar Casa</button>
+      </div>
     </form>
   </div>
 </template>
 
+
 <script>
+import { API_BASE } from '@/config.js';
+import { useToast } from 'vue-toastification'; // ✅ Importamos useToast
+
 export default {
   data() {
     return {
@@ -33,9 +47,10 @@ export default {
         titulo: "",
         descripcion: "",
         ubicacion: "",
-        precio: 0,
+        precio: "",   // aquí vacío, para que se vea el placeholder
         servicios: "",
-      },
+      }
+      ,
       archivos: []
     };
   },
@@ -44,59 +59,169 @@ export default {
       this.archivos = event.target.files;
     },
     async enviarFormulario() {
-      const formData = new FormData();
-      for (const key in this.form) {
-        formData.append(key, this.form[key]);
-      }
-      for (let i = 0; i < this.archivos.length; i++) {
-        formData.append("imagenes[]", this.archivos[i]);
-      }
+  const toast = useToast();
 
-      try {
-        const res = await fetch("http://localhost/dashboard/TFG/backend/api/crearCasa.php", {
-          method: "POST",
-          body: formData
-        });
-        const resultado = await res.json();
+  const formData = new FormData();
+  
+  // Añadimos los datos del formulario
+  for (const key in this.form) {
+    formData.append(key, this.form[key]);
+  }
 
-        if (resultado.success) {
-          alert("Casa creada correctamente.");
-          this.$router.push("/gestion");
-        } else {
-          alert("Error al crear la casa.");
-        }
-      } catch (err) {
-        console.error("Error al enviar el formulario:", err);
-        alert("Hubo un problema al enviar los datos.");
-      }
+  // ✅ Añadir el id_propietario (muy importante!)
+  formData.append("id_propietario", localStorage.getItem("id_usuario"));
+
+  // Añadir las imágenes
+  for (let i = 0; i < this.archivos.length; i++) {
+    formData.append("imagenes[]", this.archivos[i]);
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}crearCasa.php`, {
+      method: "POST",
+      body: formData
+    });
+    const resultado = await res.json();
+
+    console.log("Respuesta crearCasa:", resultado);
+
+    if (resultado.success) {
+      toast.success("✅ Casa creada correctamente.");
+      this.$router.push("/gestion");
+    } else {
+      toast.error(`❌ Error al crear la casa: ${resultado.error || ''}`);
     }
+  } catch (err) {
+    console.error("Error al enviar el formulario:", err);
+    toast.error("❌ Hubo un problema al enviar los datos.");
+  }
+}
+
   }
 };
 </script>
 
+
+
 <style scoped>
 .crear-casa {
-  max-width: 700px;
+  max-width: 900px;
   margin: auto;
-  padding: 20px;
+  padding: 30px;
+  background-color: #f3ffee;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.crear-casa h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+  font-family: 'Poppins', sans-serif;
 }
 
-input, textarea, button {
-  padding: 8px;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 20px;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+input[type="file"] {
+  width: 100%;
+  padding: 12px 16px;
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #60e29b;
+  box-shadow: 0 0 0 3px rgba(96, 226, 155, 0.3);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
 }
 
 button {
-  background-color: #4CAF50;
+  background-color: #60e29b;
   color: white;
   border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #4cc08e;
+  transform: translateY(-1px);
+}
+
+.center-btn {
+  display: flex;
+  justify-content: center;
+}
+
+.file-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  color: #60e29b;
+  font-size: 1rem;
+  font-weight: 500;
+  border: 2px dashed #60e29b;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.file-label:hover {
+  background-color: #f0fff7;
+  border-color: #4cc08e;
+  color: #4cc08e;
+  transform: translateY(-1px);
+}
+
+.file-label input[type="file"] {
+  display: none;
+}
+
+
+
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: span 1;
+  }
+
+  .crear-casa {
+    padding: 20px;
+  }
+
+  button {
+    width: 100%;
+  }
 }
 </style>

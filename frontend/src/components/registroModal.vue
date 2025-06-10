@@ -30,6 +30,10 @@
 </template>
 
 <script>
+import { API_BASE } from '@/config.js';
+import { mapMutations } from 'vuex';
+import { useToast } from 'vue-toastification'; // ✅ Añadido
+
 export default {
   name: 'RegistroModal',
   data() {
@@ -39,46 +43,63 @@ export default {
       password: '',
       repetir: '',
       tipo: 'visitante'
-    }
+    };
   },
   methods: {
+    ...mapMutations(['guardarUsuario']), // ✅ Importamos mutation
+
     async registrarse() {
-  if (this.password !== this.repetir) {
-    alert('Las contraseñas no coinciden')
-    return
-  }
+      const toast = useToast(); // ✅ Inicializamos toast
 
-  const payload = {
-    nombre: this.nombre,
-    email: this.email,
-    password: this.password,
-    tipo: this.tipo
-  }
+      if (this.password !== this.repetir) {
+        toast.error('❌ Las contraseñas no coinciden');
+        return;
+      }
 
-  try {
-    const res = await fetch('http://localhost/dashboard/TFG/backend/api/registro.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
+      const payload = {
+        nombre: this.nombre,
+        email: this.email,
+        password: this.password,
+        tipo: this.tipo
+      };
 
-    const data = await res.json()
-    if (data.success || data.mensaje) {
-      alert('Registro exitoso.')
-      this.$emit('cerrar')
-    } else {
-      alert(data.error || 'Error al registrar usuario')
+      try {
+        const res = await fetch(`${API_BASE}registro.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        console.log("Respuesta registro:", data); // ✅ opcional
+
+        if (data.success && data.usuario) {
+          // ✅ Guardar sesión
+          this.guardarUsuario(data.usuario);
+          localStorage.setItem('id_usuario', data.usuario.id_usuario);
+          localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+          // ✅ Cerrar modal
+          this.$emit('cerrar');
+
+          // ✅ Toast
+          toast.success('✅ Registro exitoso. Has iniciado sesión.');
+
+        } else {
+          toast.error(data.error || '❌ Error al registrar usuario');
+        }
+      } catch (e) {
+        console.error('Error al registrar:', e);
+        toast.error('❌ Error de conexión.');
+      }
     }
-  } catch (e) {
-    console.error('Error al registrar:', e)
   }
-}
-
-  }
-}
+};
 </script>
+
+
 
 <style scoped>
 .modal-overlay {

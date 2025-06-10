@@ -3,16 +3,10 @@
     <h1>Blog de Valoraciones</h1>
 
     <div class="grid-valoraciones">
-      <valoracionCard
-        v-for="valoracion in valoraciones"
-        :key="valoracion.id_valoracion"
-        :fotoPerfil="rutaFotoPerfil(valoracion.foto_perfil)"
-        :nombreUsuario="valoracion.nombre_usuario"
-        :nombreCasa="valoracion.nombre_casa"
-        :textoValoracion="valoracion.texto_valoracion"
-        :puntuacion="Number(valoracion.puntuacion)"
-        :diasEstancia="valoracion.dias_estancia"
-      />
+      <valoracionCard v-for="valoracion in valoraciones" :key="valoracion.id_valoracion"
+        :fotoPerfil="rutaFotoPerfil(valoracion.foto_perfil)" :nombreUsuario="valoracion.nombre_usuario"
+        :nombreCasa="valoracion.nombre_casa" :textoValoracion="valoracion.texto_valoracion"
+        :puntuacion="Number(valoracion.puntuacion)" :diasEstancia="valoracion.dias_estancia" />
     </div>
 
     <div v-if="valoraciones.length === 0" class="sin-valoraciones">
@@ -22,8 +16,9 @@
 </template>
 
 <script>
-import axios from 'axios'
-import valoracionCard from '@/components/valoracionCard.vue'
+import axios from 'axios';
+import valoracionCard from '@/components/valoracionCard.vue';
+import { API_BASE, IMG_PERFIL_BASE } from '@/config.js'; 
 
 export default {
   name: 'vBlog',
@@ -34,27 +29,28 @@ export default {
     }
   },
   mounted() {
-    this.cargarValoraciones()
+    this.cargarValoraciones();
   },
   methods: {
     async cargarValoraciones() {
       try {
-        const response = await axios.get('http://localhost/dashboard/TFG/backend/api/getValoraciones.php')
-        this.valoraciones = response.data
-        console.log('Valoraciones cargadas:', this.valoraciones)
+        const response = await axios.get(`${API_BASE}getValoraciones.php`); 
+        this.valoraciones = response.data;
+        console.log('Valoraciones cargadas:', this.valoraciones);
       } catch (error) {
-        console.error('Error al cargar valoraciones:', error)
+        console.error('Error al cargar valoraciones:', error);
       }
     },
     rutaFotoPerfil(fotoPerfil) {
       if (!fotoPerfil) {
-        return `${window.location.origin}/fotos_perfil/default.png` // Ajusta si tienes imagen por defecto
+        return `${IMG_PERFIL_BASE}default.png`; 
       }
-      return `${window.location.origin}/fotos_perfil/${fotoPerfil}`
+      return `${IMG_PERFIL_BASE}${fotoPerfil}`; 
     }
   }
 }
 </script>
+
 
 <style scoped>
 .vblog {
@@ -76,7 +72,7 @@ export default {
 
 .grid-valoraciones {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
   gap: 24px;
   padding: 10px;
 }
@@ -89,5 +85,30 @@ export default {
   margin-top: 50px;
   opacity: 0.8;
 }
-</style>
 
+@media (max-width: 1400px) {
+  .grid-valoraciones {
+    grid-template-columns: repeat(3, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid-valoraciones {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .grid-valoraciones {
+    grid-template-columns: 1fr;
+    padding: 0 10px;
+    gap: 16px;
+  }
+}
+@media (max-width: 480px) {
+  .vblog h1 {
+    font-size: 24px;
+  }
+}
+
+</style>

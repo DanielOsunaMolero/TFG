@@ -2,67 +2,87 @@
     <div class="perfil-usuario">
         <h1>Mi Perfil</h1>
 
-        <div class="perfil-info" v-if="usuario">
-            <img :src="fotoUrl" alt="Foto de perfil" class="foto-perfil" />
+        <div class="perfil-layout">
+            <!-- COLUMNA IZQUIERDA -->
+            <div class="perfil-columna izquierda">
+                <img :src="fotoUrl" alt="Foto de perfil" class="foto-perfil" />
 
-            <div class="datos">
-                <p><strong>Nombre:</strong> {{ usuario.nombre }}</p>
-                <p><strong>Email:</strong> {{ usuario.email }}</p>
-                <p><strong>Tipo:</strong> {{ usuario.tipo }}</p>
-                <p><strong>Fecha de registro:</strong> {{ usuario.fecha_registro }}</p>
+                <div class="datos">
+                    <p><strong>Nombre:</strong> {{ usuario?.nombre }}</p>
+                    <p><strong>Email:</strong> {{ usuario?.email }}</p>
+                    <p><strong>Tipo:</strong> {{ usuario?.tipo }}</p>
+                    <p><strong>Fecha de registro:</strong> {{ usuario?.fecha_registro }}</p>
+                </div>
+
+                <div class="subir-foto">
+                    <h3>Actualizar Foto de Perfil</h3>
+
+                    <label class="input-file-label">
+                        Seleccionar imagen
+                        <input type="file" @change="handleArchivo" accept="image/*" />
+                    </label>
+
+                    <button @click="subirFoto">
+                        <font-awesome-icon :icon="['fas', 'upload']" style="margin-right: 6px;" />
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA -->
+            <div class="perfil-columna derecha">
+                <!-- Reservas -->
+                <section class="bloque">
+                    <h2>Mis Reservas</h2>
+                    <div v-if="reservas.length">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Casa</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="reserva in reservas" :key="reserva.id_reserva">
+                                    <td>{{ reserva.titulo_casa }}</td>
+                                    <td>{{ reserva.fecha_inicio }}</td>
+                                    <td>{{ reserva.fecha_fin }}</td>
+                                    <td :class="'estado-' + reserva.estado">{{ reserva.estado }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p v-else>No tienes reservas aún.</p>
+                </section>
+
+                <!-- Valoraciones -->
+                <section class="bloque">
+                    <h2>Mis Valoraciones</h2>
+                    <div v-if="valoracionesUsuario.length" class="grid-valoraciones">
+                        <ValoracionCard v-for="valoracion in valoracionesUsuario" :key="valoracion.id_valoracion"
+                            :fotoPerfil="rutaFotoPerfil(usuario ? usuario.foto_perfil : null)"
+                            :nombreUsuario="usuario ? usuario.nombre : ''"
+                            :nombreCasa="valoracion.nombre_casa"
+                            :textoValoracion="valoracion.texto_valoracion"
+                            :puntuacion="Number(valoracion.puntuacion)"
+                            :diasEstancia="valoracion.dias_estancia" />
+                    </div>
+                    <p v-else>No has hecho valoraciones aún.</p>
+                </section>
             </div>
         </div>
-
-        <div class="subir-foto">
-            <h3>Actualizar Foto de Perfil</h3>
-            <input type="file" @change="handleArchivo" accept="image/*" />
-            <button @click="subirFoto">Subir Foto</button>
-        </div>
-
-        <h2>Mis Reservas</h2>
-        <div v-if="reservas.length">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Casa</th>
-                        <th>Inicio</th>
-                        <th>Fin</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="reserva in reservas" :key="reserva.id_reserva">
-                        <td>{{ reserva.titulo_casa }}</td>
-                        <td>{{ reserva.fecha_inicio }}</td>
-                        <td>{{ reserva.fecha_fin }}</td>
-                        <td :class="'estado-' + reserva.estado">{{ reserva.estado }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <p v-else>No tienes reservas aún.</p>
-
-        <!-- MIS VALORACIONES -->
-        <h2>Mis Valoraciones</h2>
-        <div v-if="valoracionesUsuario.length" class="grid-valoraciones">
-            <ValoracionCard
-                v-for="valoracion in valoracionesUsuario"
-                :key="valoracion.id_valoracion"
-                :fotoPerfil="rutaFotoPerfil(usuario.foto_perfil)"
-                :nombreUsuario="usuario.nombre"
-                :nombreCasa="valoracion.nombre_casa"
-                :textoValoracion="valoracion.texto_valoracion"
-                :puntuacion="Number(valoracion.puntuacion)"
-                :diasEstancia="valoracion.dias_estancia"
-            />
-        </div>
-        <p v-else>No has hecho valoraciones aún.</p>
     </div>
 </template>
 
+
+
 <script>
 import { mapMutations, mapState } from 'vuex';
-import ValoracionCard from '@/components/valoracionCard.vue'; // ✅ Importamos el componente
+import ValoracionCard from '@/components/valoracionCard.vue';
+import { API_BASE, IMG_PERFIL_BASE } from '@/config.js';
+import { useToast } from 'vue-toastification';
 
 export default {
     components: {
@@ -72,15 +92,16 @@ export default {
         return {
             reservas: [],
             archivoFoto: null,
-            valoracionesUsuario: [] // ✅ Array para las valoraciones
+            valoracionesUsuario: []
         };
     },
     computed: {
         ...mapState(['usuario']),
         fotoUrl() {
-            return this.usuario && this.usuario.foto_perfil
-                ? `http://localhost:8080/fotos_perfil/${this.usuario.foto_perfil}`
-                : 'https://via.placeholder.com/150x150?text=👤';
+            if (!this.usuario || !this.usuario.foto_perfil) {
+                return `${IMG_PERFIL_BASE}default.jpg`;
+            }
+            return `${IMG_PERFIL_BASE}${this.usuario.foto_perfil}`;
         }
     },
     methods: {
@@ -89,9 +110,12 @@ export default {
         handleArchivo(e) {
             this.archivoFoto = e.target.files[0];
         },
+
         async subirFoto() {
+            const toast = useToast();
+
             if (!this.archivoFoto) {
-                alert("Selecciona una imagen primero.");
+                toast.warning("⚠️ Selecciona una imagen primero.");
                 return;
             }
 
@@ -101,33 +125,37 @@ export default {
             formData.append("id_usuario", id_usuario);
 
             try {
-                const res = await fetch("http://localhost/dashboard/TFG/backend/api/subirFotoPerfil.php", {
+                const res = await fetch(`${API_BASE}subirFotoPerfil.php`, {
                     method: "POST",
                     body: formData
                 });
 
                 const data = await res.json();
+                console.log("Respuesta subirFotoPerfil:", data);
 
                 if (data.success) {
-                    alert("Foto actualizada correctamente.");
-                    this.usuario.foto_perfil = data.nombre_foto;
-                    const usuarioActual = JSON.parse(localStorage.getItem("usuario"));
-                    usuarioActual.foto_perfil = data.nombre_foto;
-                    this.guardarUsuario(usuarioActual);
-                    localStorage.setItem("usuario", JSON.stringify(usuarioActual));
+                    toast.success("✅ Foto actualizada correctamente.");
+                    if (this.usuario) {
+                        this.usuario.foto_perfil = data.nombre_foto;
+                        const usuarioActual = JSON.parse(localStorage.getItem("usuario"));
+                        usuarioActual.foto_perfil = data.nombre_foto;
+                        this.guardarUsuario(usuarioActual);
+                        localStorage.setItem("usuario", JSON.stringify(usuarioActual));
+                    }
                 } else {
-                    alert("Error al subir la foto.");
+                    toast.error("❌ Error al subir la foto.");
                 }
             } catch (err) {
                 console.error("Error en subida:", err);
-                alert("Error al conectar con el servidor.");
+                toast.error("❌ Error al conectar con el servidor.");
             }
         },
 
         rutaFotoPerfil(fotoPerfil) {
-            return fotoPerfil
-                ? `${window.location.origin}/fotos_perfil/${fotoPerfil}`
-                : `${window.location.origin}/fotos_perfil/default.png`;
+            if (!fotoPerfil) {
+                return `${IMG_PERFIL_BASE}default.jpg`;
+            }
+            return `${IMG_PERFIL_BASE}${fotoPerfil}`;
         }
     },
 
@@ -140,7 +168,7 @@ export default {
         }
 
         // Cargar reservas
-        fetch(`http://localhost/dashboard/TFG/backend/api/getReservasUsuario.php?id_usuario=${id}`)
+        fetch(`${API_BASE}getReservasUsuario.php?id_usuario=${id}`)
             .then(res => {
                 if (!res.ok) throw new Error("Error al consultar las reservas");
                 return res.json();
@@ -153,7 +181,7 @@ export default {
             });
 
         // Cargar valoraciones del usuario
-        fetch(`http://localhost/dashboard/TFG/backend/api/getValoraciones.php?id_usuario=${id}`)
+        fetch(`${API_BASE}getValoraciones.php?id_usuario=${id}`)
             .then(res => {
                 if (!res.ok) throw new Error("Error al consultar las valoraciones");
                 return res.json();
@@ -168,11 +196,9 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
 .perfil-usuario {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 30px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -189,43 +215,70 @@ h1 {
     display: inline-block;
 }
 
-.perfil-info {
+.perfil-layout {
     display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.perfil-columna {
+    flex: 1;
+    min-width: 300px;
+}
+
+/* COLUMNA IZQUIERDA */
+.perfil-columna.izquierda {
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    margin-bottom: 30px;
+    gap: 20px;
 }
 
 .foto-perfil {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     object-fit: cover;
     border-radius: 50%;
     border: 4px solid #60e29b;
-    margin-right: 30px;
 }
 
 .datos p {
-    margin: 8px 0;
+    margin: 6px 0;
     font-size: 1rem;
     color: #444;
-}
-
-.datos strong {
-    color: #000;
+    text-align: left;
+    width: 100%;
 }
 
 .subir-foto {
-    margin-top: 20px;
+    margin-top: 10px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 10px;
 }
 
-.subir-foto input[type="file"] {
-    padding: 6px;
-    border-radius: 8px;
-    background-color: #fff;
-    border: 1px solid #ccc;
+.input-file-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #60e29b;
+    color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    user-select: none;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.input-file-label:hover {
+    background-color: #4fc88b;
+}
+
+.input-file-label input[type="file"] {
+    display: none;
 }
 
 .subir-foto button {
@@ -243,8 +296,17 @@ h1 {
     background-color: #4fc88b;
 }
 
+/* COLUMNA DERECHA */
+.perfil-columna.derecha {
+    flex: 2;
+}
+
+.bloque {
+    margin-bottom: 30px;
+}
+
 h2 {
-    margin-top: 40px;
+    margin-top: 0;
     font-size: 1.5rem;
     color: #333;
     border-bottom: 2px solid #60e29b;
@@ -297,4 +359,21 @@ tr:nth-child(even) {
     gap: 20px;
     margin-top: 20px;
 }
+
+/* MEDIA QUERY para dispositivos pequeños */
+@media (max-width: 768px) {
+    .perfil-layout {
+        flex-direction: column;
+    }
+
+    .perfil-columna.izquierda {
+        align-items: center;
+        max-width: 100%;
+    }
+
+    .perfil-columna.derecha {
+        width: 100%;
+    }
+}
+
 </style>

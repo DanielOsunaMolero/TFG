@@ -3,43 +3,57 @@
     <h1>Gestión de Propietario</h1>
 
     <div class="botones-superiores">
-      <button class="crear-btn" @click="crearCasa">➕ Crear Nueva Casa</button>
-      <button class="reservas-btn" @click="verReservas">📋 Gestión de Reservas</button>
+      <button class="crear-btn" @click="crearCasa">
+        <font-awesome-icon :icon="['fas', 'plus']" style="margin-right: 6px;" />
+        Crear Nueva Casa
+      </button>
+      <button class="reservas-btn" @click="verReservas">
+        <font-awesome-icon :icon="['fas', 'clipboard-list']" style="margin-right: 6px;" />
+        Gestión de Reservas
+      </button>
     </div>
-
 
     <div class="grid-casas">
       <div v-for="casa in casas" :key="casa.id" class="card-casa">
-        <img :src="casa.imagen || placeholder" alt="Imagen casa" class="img-casa">
+        <img v-if="casa.imagen" :src="casa.imagen" alt="Imagen casa" class="img-casa">
+
         <h3>{{ casa.titulo }}</h3>
         <div class="acciones">
-          <button @click="editarCasa(casa.id)">✏️ Editar</button>
-          <button @click="eliminarCasa(casa.id)">🗑 Eliminar</button>
+          <button @click="editarCasa(casa.id)">
+            <font-awesome-icon :icon="['fas', 'pen']" style="margin-right: 6px;" />
+            Editar
+          </button>
+          <button @click="eliminarCasa(casa.id)">
+            <font-awesome-icon :icon="['fas', 'trash']" style="margin-right: 6px;" />
+            Eliminar
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
+
 <script>
+import { API_BASE, IMG_BASE } from '@/config.js';
+import { useToast } from 'vue-toastification';
+
 export default {
   data() {
     return {
-      casas: [],
-      placeholder: "https://via.placeholder.com/300x200?text=Sin+imagen"
+      casas: []
     };
   },
   methods: {
     async cargarCasas() {
-  try {
-    const id_usuario = localStorage.getItem("id_usuario");
-    const res = await fetch(`http://localhost/dashboard/TFG/backend/api/getCasasPropietario.php?id_propietario=${id_usuario}`);
-    this.casas = await res.json();
-  } catch (error) {
-    console.error("Error cargando casas:", error);
-  }
-}
-,
+      try {
+        const id_usuario = localStorage.getItem("id_usuario");
+        const res = await fetch(`${API_BASE}getCasasPropietario.php?id_propietario=${id_usuario}`);
+        this.casas = await res.json();
+      } catch (error) {
+        console.error("Error cargando casas:", error);
+      }
+    },
     crearCasa() {
       this.$router.push("/crear-casa");
     },
@@ -49,39 +63,50 @@ export default {
     verReservas() {
       this.$router.push("/gestion-reservas");
     },
-
     eliminarCasa(id) {
-  if (confirm("¿Estás seguro de que quieres eliminar esta casa?")) {
-    const formData = new FormData();
-    formData.append("id", id); 
+      const toast = useToast();
 
-    fetch("http://localhost/dashboard/TFG/backend/api/eliminarCasa.php", {
-      method: "POST",
-      body: formData
-    })
-    
-      .then(res => res.json())
-      .then(data => {
-  if (data.success) {
-    this.cargarCasas();
-  } else {
-    alert(data.message || "No se pudo eliminar la casa.");
-    console.error("Error del backend:", data);
-  }
-})
+      if (confirm("¿Estás seguro de que quieres eliminar esta casa?")) {
+        const formData = new FormData();
+        formData.append("id", id);
 
-      .catch(err => {
-        console.error("Error al eliminar:", err);
-        alert("Error al eliminar la casa.");
-      });
-  }
-}
+        fetch(`${API_BASE}eliminarCasa.php`, {
+          method: "POST",
+          body: formData
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log("Respuesta eliminarCasa:", data);
+            if (data.success) {
+              this.cargarCasas();
+              toast.success("✅ Casa eliminada correctamente.");
+            } else {
+              toast.error(data.message || "❌ No se pudo eliminar la casa.");
+              console.error("Error del backend:", data);
+            }
+          })
+          .catch(err => {
+            console.error("Error al eliminar:", err);
+            toast.error("❌ Error al eliminar la casa.");
+          });
+      }
+    },
+    getFotoCasaUrl(casa) {
+      if (casa.imagenes && casa.imagenes.length > 0) {
+        return `${IMG_BASE}${casa.imagenes[0]}`; // Primera imagen
+      } else {
+        return `${IMG_BASE}default_casa.jpg`; // Foto por defecto
+      }
+    }
   },
   mounted() {
     this.cargarCasas();
   }
 };
 </script>
+
+
+
 
 <style scoped>
 .gestion-propietarios {

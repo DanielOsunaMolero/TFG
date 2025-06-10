@@ -45,6 +45,9 @@
 
 
 <script>
+import { API_BASE, IMG_BASE } from '@/config.js';
+import { useToast } from 'vue-toastification';
+
 export default {
   data() {
     return {
@@ -64,7 +67,7 @@ export default {
   async mounted() {
     this.idCasa = this.$route.params.id;
     try {
-      const res = await fetch(`http://localhost/dashboard/TFG/backend/api/casa.php?id=${this.idCasa}`);
+      const res = await fetch(`${API_BASE}casa.php?id=${this.idCasa}`);
       const datos = await res.json();
 
       this.form = {
@@ -76,23 +79,9 @@ export default {
 
       this.servicios = datos.servicios ? datos.servicios.split(',').map(s => s.trim()) : [];
 
-      // Cargar imágenes que realmente existen (hasta 9)
-      const base = "http://localhost:8080/fotos/";
-      const nombreBase = datos.titulo.toLowerCase().replace(/\s+/g, "_");
+      // ✅ AQUÍ es donde tienes que poner las imágenes existentes
+      this.imagenesExistentes = datos.imagenes.map(nombre => `${IMG_BASE}${nombre}`);
 
-      for (let i = 1; i <= 9; i++) {
-        const nombre = `Foto_${nombreBase}(${i}).jpg`;
-        const url = `${base}${nombre}`;
-
-        try {
-          const res = await fetch(url, { method: "HEAD" });
-          if (res.ok) {
-            this.imagenesExistentes.push(url);
-          }
-        } catch (e) {
-          console.warn(`No existe la imagen: ${url}`);
-        }
-      }
     } catch (error) {
       console.error("Error al cargar la casa:", error);
     }
@@ -112,6 +101,8 @@ export default {
       this.servicios.splice(index, 1);
     },
     async enviarFormulario() {
+      const toast = useToast();
+
       const formData = new FormData();
       for (const key in this.form) {
         formData.append(key, this.form[key]);
@@ -124,27 +115,35 @@ export default {
       }
 
       try {
-        const res = await fetch("http://localhost/dashboard/TFG/backend/api/editarCasa.php", {
+        const res = await fetch(`${API_BASE}editarCasa.php`, {
           method: "POST",
           body: formData
         });
         const result = await res.json();
+        console.log("Respuesta editarCasa:", result);
+
         if (result.success) {
-          alert("Casa actualizada correctamente.");
-          this.$router.go(0); // Recarga la misma página
-        }
-        else {
-          alert("Error al actualizar.");
+          toast.success("✅ Casa actualizada correctamente.");
+          // Aquí actualizamos la galería de imágenes sin recargar la página
+          this.imagenesExistentes = result.imagenes.map(nombre => `${IMG_BASE}${nombre}`);
+          // Vaciamos las nuevas imágenes seleccionadas
+          this.imagenes = [];
+        } else {
+          toast.error("❌ Error al actualizar.");
         }
       } catch (err) {
         console.error("Error al actualizar:", err);
+        toast.error("❌ Error al actualizar la casa.");
       }
     },
+
     eliminarImagenLocal(index) {
+      const toast = useToast();
+
       const ruta = this.imagenesExistentes[index];
       const nombre = ruta.split('/').pop();
 
-      fetch("http://localhost/dashboard/TFG/backend/api/eliminarImagenCasa.php", {
+      fetch(`${API_BASE}eliminarImagenCasa.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -153,20 +152,24 @@ export default {
       })
         .then(res => res.json())
         .then(data => {
+          console.log("Respuesta eliminarImagenCasa:", data);
           if (data.success) {
             this.imagenesExistentes.splice(index, 1);
+            toast.success("✅ Imagen eliminada correctamente.");
           } else {
-            alert("No se pudo eliminar del servidor.");
+            toast.error("❌ No se pudo eliminar la imagen del servidor.");
           }
         })
         .catch(err => {
           console.error("Error eliminando imagen:", err);
-          alert("Error de conexión.");
+          toast.error("❌ Error de conexión al eliminar imagen.");
         });
     }
   }
 };
 </script>
+
+
 
 
 <style scoped>

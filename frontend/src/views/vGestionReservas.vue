@@ -267,4 +267,10 @@ p {
     width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .gestion-reservas {
+    width: 90%;
+  }
+}
 </style>

@@ -246,5 +246,10 @@ h1 {
   }
 }
 
+@media (max-width: 480px) {
+  .gestion-propietarios {
+    width: 90%;
+  }
+}
 
 </style>

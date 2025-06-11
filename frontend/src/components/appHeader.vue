@@ -60,7 +60,7 @@ export default {
 
 <style scoped>
 .navbar {
-  height: 70px;
+  height: auto;
   padding: 0 30px;
   display: flex;
   align-items: center;
@@ -68,8 +68,6 @@ export default {
   backdrop-filter: blur(12px);
   font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
   z-index: 100;
 }
 
@@ -157,13 +155,23 @@ export default {
 
 @media (max-width: 768px) {
   .nav-container {
-    align-items: flex-start;
-    gap: 12px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    gap: 10px;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
   }
 
   .auth-button, .nav-link {
-    width: 100%;
-    text-align: left;
+    width: auto;
+    text-align: center;
   }
 
   .foto-perfil {
@@ -171,10 +179,9 @@ export default {
   }
 
   .logo {
-    height: 42px;
-    max-height: 50px;
+    height: 50px;
+    max-height: 55px;
   }
 }
-
 
 </style>

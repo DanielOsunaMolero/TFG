@@ -10,9 +10,6 @@
           <a href="#" class="social-icon">
             <font-awesome-icon :icon="['fab', 'facebook']" /> Facebook
           </a>
-          <a href="#" class="social-icon">
-            <font-awesome-icon :icon="['fas', 'globe']" /> Web
-          </a>
         </div>
       </div>
 

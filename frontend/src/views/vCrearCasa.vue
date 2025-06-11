@@ -47,59 +47,71 @@ export default {
         titulo: "",
         descripcion: "",
         ubicacion: "",
-        precio: "",   // aquí vacío, para que se vea el placeholder
+        precio: "",
         servicios: "",
-      }
-      ,
+      },
       archivos: []
     };
   },
   methods: {
     handleArchivos(event) {
       this.archivos = event.target.files;
+
+      // ✅ Aviso opcional (esto es informativo, no bloquea)
+      if (this.archivos.length !== 6) {
+        const toast = useToast();
+        toast.warning('⚠️ Debes seleccionar exactamente 6 imágenes.');
+      }
     },
+
     async enviarFormulario() {
-  const toast = useToast();
+      const toast = useToast();
 
-  const formData = new FormData();
-  
-  // Añadimos los datos del formulario
-  for (const key in this.form) {
-    formData.append(key, this.form[key]);
-  }
+      // ✅ Validar número de imágenes
+      if (this.archivos.length !== 6) {
+        toast.error('❌ Debes seleccionar exactamente 6 imágenes.');
+        return;
+      }
 
-  // ✅ Añadir el id_propietario (muy importante!)
-  formData.append("id_propietario", localStorage.getItem("id_usuario"));
+      const formData = new FormData();
 
-  // Añadir las imágenes
-  for (let i = 0; i < this.archivos.length; i++) {
-    formData.append("imagenes[]", this.archivos[i]);
-  }
+      // Añadimos los datos del formulario
+      for (const key in this.form) {
+        formData.append(key, this.form[key]);
+      }
 
-  try {
-    const res = await fetch(`${API_BASE}crearCasa.php`, {
-      method: "POST",
-      body: formData
-    });
-    const resultado = await res.json();
+      // ✅ Añadir el id_propietario (muy importante!)
+      formData.append("id_propietario", localStorage.getItem("id_usuario"));
 
-    console.log("Respuesta crearCasa:", resultado);
+      // Añadir las imágenes
+      for (let i = 0; i < this.archivos.length; i++) {
+        formData.append("imagenes[]", this.archivos[i]);
+      }
 
-    if (resultado.success) {
-      toast.success("✅ Casa creada correctamente.");
-      this.$router.push("/gestion");
-    } else {
-      toast.error(`❌ Error al crear la casa: ${resultado.error || ''}`);
+      try {
+        const res = await fetch(`${API_BASE}crearCasa.php`, {
+          method: "POST",
+          body: formData
+        });
+        const resultado = await res.json();
+
+        console.log("Respuesta crearCasa:", resultado);
+
+        if (resultado.success) {
+          toast.success("✅ Casa creada correctamente.");
+          this.$router.push("/gestion");
+        } else {
+          toast.error(`❌ Error al crear la casa: ${resultado.error || ''}`);
+        }
+      } catch (err) {
+        console.error("Error al enviar el formulario:", err);
+        toast.error("❌ Hubo un problema al enviar los datos.");
+      }
     }
-  } catch (err) {
-    console.error("Error al enviar el formulario:", err);
-    toast.error("❌ Hubo un problema al enviar los datos.");
-  }
-}
-
   }
 };
 </script>
+
 
 
 
@@ -222,6 +234,12 @@ button:hover {
 
   button {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .crear-casa {
+    width: 90%;
   }
 }
 </style>

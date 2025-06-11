@@ -53,6 +53,7 @@ export default {
           this.guardarUsuario(data.usuario);
           localStorage.setItem('id_usuario', data.usuario.id_usuario);
           localStorage.setItem('usuario', JSON.stringify(data.usuario));
+          localStorage.setItem('tipo_usuario', data.usuario.tipo); // ✅ añadido
 
           // ✅ Cerrar modal
           this.$emit('cerrar');
@@ -61,7 +62,7 @@ export default {
           toast.success('✅ Sesión iniciada correctamente.');
 
         } else {
-          toast.error(data.message || '❌ Credenciales incorrectas.');
+          toast.error(data.error || '❌ Credenciales incorrectas.');
         }
 
       } catch (error) {
@@ -72,8 +73,6 @@ export default {
   }
 };
 </script>
-
-
 
 <style scoped>
 .modal-overlay {

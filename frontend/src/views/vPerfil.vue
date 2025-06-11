@@ -376,4 +376,9 @@ tr:nth-child(even) {
     }
 }
 
+@media (max-width: 480px) {
+  .perfil-usuario {
+    width: 90%;
+  }
+}
 </style>

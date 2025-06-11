@@ -94,4 +94,15 @@ html, body {
   opacity: 1;
   transform: scale(1);
 }
+
+@media (max-width: 768px) {
+  
+
+  main, .main-content, .contenido-principal, .contenido, .page-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
 </style>

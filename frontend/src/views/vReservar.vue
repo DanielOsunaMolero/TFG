@@ -99,7 +99,7 @@
 <script>
 import { DatePicker } from 'v-calendar';
 import { API_BASE, IMG_BASE } from '@/config.js';
-import { useToast } from 'vue-toastification'; // ✅ Importamos useToast
+import { useToast } from 'vue-toastification';
 
 export default {
   components: {
@@ -118,7 +118,7 @@ export default {
       fecha_fin: null,
       cvv: '',
       titular: '',
-      dias: 1,
+      dias: 0, // ahora son noches!
       total: 0,
       casa: null,
       imagenes: [],
@@ -126,12 +126,14 @@ export default {
       index2: 1,
       intervalo: null,
       fechaSeleccionada: null,
-      hoy: new Date().toISOString().split('T')[0]
+      hoy: new Date().toISOString().split('T')[0],
+      usuarioLogueado: false
     };
   },
   mounted() {
     const id = this.$route.params.id;
 
+    this.usuarioLogueado = !!localStorage.getItem('id_usuario');
 
     fetch(`${API_BASE}casa.php?id=${id}`)
       .then(res => res.json())
@@ -139,9 +141,8 @@ export default {
         this.casa = data;
         const base = this.normalizar(this.casa.titulo);
         this.imagenes = Array.from({ length: 6 }, (_, i) => `${IMG_BASE}Foto_${base}(${i + 1}).jpg`);
-        this.actualizarPrecio(); // aquí sí tiene sentido llamar a actualizarPrecio
+        this.actualizarPrecio();
       });
-
 
     this.intervalo = setInterval(() => {
       this.index1 = (this.index1 + 1) % this.imagenes.length;
@@ -155,9 +156,37 @@ export default {
     procesarPago() {
       const toast = useToast();
       const id_usuario = localStorage.getItem('id_usuario');
-      const fecha_inicio = this.fecha_inicio;
-      const fecha_fin = new Date(new Date(fecha_inicio).getTime() + (this.dias - 1) * 24 * 60 * 60 * 1000)
-        .toISOString().split('T')[0];
+
+      // ✅ Comprobación de login
+      if (!id_usuario) {
+        toast.warning("⚠️ Debes iniciar sesión para poder reservar.");
+        return;
+      }
+
+      // ✅ Comprobación de fechas seleccionadas
+      if (!this.fecha_inicio || !this.fecha_fin) {
+        toast.error("❌ Debes seleccionar la fecha de inicio y la fecha de fin.");
+        return;
+      }
+
+      // ✅ Comprobación de que no sean iguales
+      const inicio = new Date(this.fecha_inicio);
+      const fin = new Date(this.fecha_fin);
+      if (inicio.getTime() === fin.getTime()) {
+        toast.error("❌ La fecha de inicio y la de fin no pueden ser iguales.");
+        return;
+      }
+
+      // ✅ Comprobación de que haya al menos 1 noche
+      if (this.dias <= 0) {
+        toast.error("❌ Debes seleccionar un rango de fechas válido (al menos 1 noche).");
+        return;
+      }
+
+      // ✅ Formatear fechas correctamente (evita problemas con timezone)
+      const fecha_inicio = this.formatDate(this.fecha_inicio);
+      const fecha_fin = this.formatDate(this.fecha_fin);
+
       const reserva = {
         id_usuario: parseInt(id_usuario),
         id_casa: this.casa.id_casa,
@@ -165,6 +194,7 @@ export default {
         fecha_fin,
         importe_total: this.total
       };
+
       fetch(`${API_BASE}reserva.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -184,9 +214,16 @@ export default {
           toast.error("❌ Error de conexión al reservar.");
         });
     },
+
+    avisoNoLogin() {
+      const toast = useToast();
+      toast.warning("⚠️ Debes iniciar sesión para poder reservar.");
+    },
+
     actualizarPrecio() {
       this.total = (this.casa?.precio_noche || 0) * this.dias;
     },
+
     normalizar(str) {
       return (str || '')
         .normalize("NFD")
@@ -194,33 +231,35 @@ export default {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '_');
     },
+
     calcularDias() {
       if (this.fecha_inicio && this.fecha_fin) {
         const inicio = new Date(this.fecha_inicio);
         const fin = new Date(this.fecha_fin);
-        const diferencia = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)) + 1;
+
+        // ✅ cálculo correcto de noches
+        const diferencia = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)); //redondea hacia arriba para incluir el último día y que cuente como noche
+
         this.dias = diferencia > 0 ? diferencia : 0;
       } else {
         this.dias = 0;
       }
-      this.actualizarPrecio();
-    }
-  },
 
-  calcularDias() {
-    if (this.fecha_inicio && this.fecha_fin) {
-      const inicio = new Date(this.fecha_inicio);
-      const fin = new Date(this.fecha_fin);
-      const diferencia = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)) + 1;
-      this.dias = diferencia > 0 ? diferencia : 0;
-    } else {
-      this.dias = 0;
+      this.actualizarPrecio();
+    },
+
+    formatDate(date) { // Formatea la fecha a YYYY-MM-DD
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = ('0' + (d.getMonth() + 1)).slice(-2);
+      const day = ('0' + d.getDate()).slice(-2);
+      return `${year}-${month}-${day}`;
     }
-    this.actualizarPrecio();
   },
 
   watch: {
-    fecha_inicio(newInicio) {
+    fecha_inicio(newInicio) { // Al cambiar la fecha de inicio, actualizamos la fecha de fin si es necesario
+      if (!newInicio) return; // Si no hay fecha de inicio, no hacemos nada
       if (this.fecha_fin && new Date(this.fecha_fin) < new Date(newInicio)) {
         this.fecha_fin = newInicio;
       }
@@ -230,10 +269,12 @@ export default {
       this.calcularDias();
     }
   }
-
-
 };
 </script>
+
+
+
+
 
 
 <style scoped>
@@ -463,7 +504,7 @@ button:hover {
   }
 
   .tarjeta-casa {
-    width: 100%;
+
     padding: 16px;
   }
 
@@ -489,41 +530,92 @@ button:hover {
 
 @media (max-width: 480px) {
 
+  .reserva-container {
+    padding: 10px;
+  }
+
+  .reserva-main {
+    flex-direction: column;
+    gap: 15px;
+    padding: 0;
+    justify-content: flex-start;
+    /* corregido */
+  }
+
+  .columna-izquierda,
+  .columna-derecha {
+    flex: 1 1 100%;
+    min-width: 100%;
+    width: 100%;
+    /* importante */
+    padding: 0;
+  }
+
+  .formulario {
+    padding: 10px 8px;
+    /* más estrecho */
+    border-radius: 10px;
+    width: 90%;
+  }
+
+  .formulario input {
+    padding: 10px;
+    font-size: 15px;
+    width: 90%;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    font-size: 17px;
+  }
+
+  .tarjeta-casa {
+    width: 87%;
+    padding: 12px;
+  }
+
+  .galeria {
+    flex-direction: column;
+    gap: 4px;
+    padding: 0;
+    margin: 0;
+  }
+
+
   .foto-principal,
   .foto-secundaria {
     width: 100%;
     height: auto;
   }
 
-  .formulario input {
-    padding: 8px;
-    font-size: 14px;
+  .calendarios-flex {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
   }
 
-  button {
+  .calendario-wrapper {
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .calendario-wrapper h3 {
+    font-size: 15px;
+    text-align: center;
+  }
+
+  .info-reserva h2 {
+    font-size: 18px;
+    text-align: center;
+    word-wrap: break-word;
   }
 
   .precio-total {
     font-size: 16px;
     text-align: center;
-  }
-
-  .calendarios-flex {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .calendario-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
+    margin-top: 10px;
   }
 }
 </style>

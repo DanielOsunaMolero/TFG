@@ -49,52 +49,68 @@ export default {
     ...mapMutations(['guardarUsuario']), // ✅ Importamos mutation
 
     async registrarse() {
-      const toast = useToast(); // ✅ Inicializamos toast
+  const toast = useToast();
 
-      if (this.password !== this.repetir) {
-        toast.error('❌ Las contraseñas no coinciden');
-        return;
-      }
+  // Validaciones
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-      const payload = {
-        nombre: this.nombre,
-        email: this.email,
-        password: this.password,
-        tipo: this.tipo
-      };
+  if (this.nombre.trim().length < 3) {
+    toast.error('❌ El nombre debe tener al menos 3 caracteres.');
+    return;
+  }
 
-      try {
-        const res = await fetch(`${API_BASE}registro.php`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
+  if (!emailRegex.test(this.email)) {
+    toast.error('❌ Introduce un correo electrónico válido.');
+    return;
+  }
 
-        const data = await res.json();
-        console.log("Respuesta registro:", data); // ✅ opcional
+  if (!passwordRegex.test(this.password)) {
+    toast.error('❌ La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.');
+    return;
+  }
 
-        if (data.success && data.usuario) {
-          // ✅ Guardar sesión
-          this.guardarUsuario(data.usuario);
-          localStorage.setItem('id_usuario', data.usuario.id_usuario);
-          localStorage.setItem('usuario', JSON.stringify(data.usuario));
+  if (this.password !== this.repetir) {
+    toast.error('❌ Las contraseñas no coinciden.');
+    return;
+  }
 
-          // ✅ Cerrar modal
-          this.$emit('cerrar');
+  // Si todo OK → enviar registro
+  const payload = {
+    nombre: this.nombre,
+    email: this.email,
+    password: this.password,
+    tipo: this.tipo
+  };
 
-          // ✅ Toast
-          toast.success('✅ Registro exitoso. Has iniciado sesión.');
+  try {
+    const res = await fetch(`${API_BASE}registro.php`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
 
-        } else {
-          toast.error(data.error || '❌ Error al registrar usuario');
-        }
-      } catch (e) {
-        console.error('Error al registrar:', e);
-        toast.error('❌ Error de conexión.');
-      }
+    const data = await res.json();
+    console.log("Respuesta registro:", data);
+
+    if (data.success && data.usuario) {
+      this.guardarUsuario(data.usuario);
+      localStorage.setItem('id_usuario', data.usuario.id_usuario);
+      localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+      this.$emit('cerrar');
+      toast.success('✅ Registro exitoso. Has iniciado sesión.');
+    } else {
+      toast.error(data.error || '❌ Error al registrar usuario.');
     }
+  } catch (e) {
+    console.error('Error al registrar:', e);
+    toast.error('❌ Error de conexión.');
+  }
+}
+
   }
 };
 </script>

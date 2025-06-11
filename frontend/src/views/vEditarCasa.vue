@@ -325,4 +325,47 @@ button:hover {
 .imagen-contenedor .eliminar:hover {
   background-color: rgba(255, 0, 0, 0.8);
 }
+
+@media (max-width: 768px) {
+  .contenedor-edicion {
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .editar-casa {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+  }
+
+  .galeria-imagenes {
+    width: 100%;
+    grid-template-columns: repeat(2, 1fr); /* en móvil mejor 2 columnas */
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contenedor-edicion {
+    flex-direction: column;
+    
+    align-items: center;
+    margin-left: 0%;
+    padding: 0px;
+  }
+
+  .editar-casa {
+    width: 80%;
+    padding: 0px;
+  }
+
+  .galeria-imagenes {
+    width: 80%;
+    grid-template-columns: 1fr; /* en móvil pequeño, 1 columna */
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+}
+
 </style>

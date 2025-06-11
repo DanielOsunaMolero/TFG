@@ -29,7 +29,6 @@
         </ul>
       </div>
       <div>
-        <h3>&nbsp;</h3>
         <ul>
           <li v-for="servicio in serviciosDerecha" :key="servicio">● {{ servicio }}</li>
         </ul>
@@ -91,10 +90,12 @@
 </section>
 
 
-    <!-- Botón de acción -->
-    <div class="boton-reserva">
-      <button @click="$router.push(`/reservar/${casa.id_casa}`)">Reservar</button>
-    </div>
+<div class="boton-reserva" v-if="id_usuario && tipoUsuario === 'visitante'">
+
+  <button @click="$router.push(`/reservar/${casa.id_casa}`)">Reservar</button>
+
+</div>
+
   </div>
 </template>
 
@@ -103,7 +104,7 @@
 import axios from 'axios';
 import valoracionCard from '@/components/valoracionCard.vue';
 import { API_BASE, IMG_BASE, IMG_PERFIL_BASE } from '@/config.js';
-import { useToast } from 'vue-toastification'; // ✅ Importamos useToast
+import { useToast } from 'vue-toastification'; 
 
 export default {
   name: 'vCasaDetalle',
@@ -119,7 +120,8 @@ export default {
         puntuacion: 5,
         dias: 1
       },
-      id_usuario: null
+      id_usuario: null,
+      tipoUsuario: '' // ✅ añadido
     };
   },
   computed: {
@@ -160,6 +162,8 @@ export default {
   mounted() {
     const id = this.$route.params.id;
     this.id_usuario = localStorage.getItem('id_usuario');
+   this.tipoUsuario = (localStorage.getItem('tipo_usuario') || '').toLowerCase();
+
 
     this.cargarCasa(id);
     this.cargarValoraciones(id);
@@ -241,6 +245,7 @@ export default {
   }
 };
 </script>
+
 
 
 
@@ -376,6 +381,11 @@ export default {
     flex-direction: column;
   }
 
+  .servicios {
+    margin: 0px 0; /* <<< esto quita el hueco */
+    gap: 0px;
+  }
+
   .titulo {
     font-size: 26px;
   }
@@ -385,7 +395,14 @@ export default {
     aspect-ratio: 1 / 0.5;
   }
 
+  .servicios > div,
+  .descripcion,
+  .valoraciones {
+    flex: none;
+    width: 100%;
+  }
 }
+
 
 
 .imagen-principal {

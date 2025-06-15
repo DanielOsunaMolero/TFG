@@ -8,11 +8,14 @@
       <input v-model="repetir" type="password" placeholder="Repetir contraseña" />
 
       <div class="acciones">
-        <a href="#">Términos</a>
-        <a href="#">Política</a>
+        <a href="/documentos/terminos_uso_weekendhouse.pdf" target="_blank" rel="noopener noreferrer">
+          📄 Ver Términos de Uso
+        </a>
+        <a href="/documentos/politica_privacidad_weekendhouse.pdf" target="_blank" rel="noopener noreferrer">
+          🔒 Ver Política de Privacidad
+        </a>
       </div>
 
-      <!-- Sustituimos los puntos grises por los radios -->
       <div class="tipo-usuario">
         <label>
           <input type="radio" value="visitante" v-model="tipo" />
@@ -32,7 +35,7 @@
 <script>
 import { API_BASE } from '@/config.js';
 import { mapMutations } from 'vuex';
-import { useToast } from 'vue-toastification'; // ✅ Añadido
+import { useToast } from 'vue-toastification';
 
 export default {
   name: 'RegistroModal',
@@ -46,70 +49,67 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(['guardarUsuario']), // ✅ Importamos mutation
+    ...mapMutations(['guardarUsuario']),
 
     async registrarse() {
-  const toast = useToast();
+      const toast = useToast();
 
-  // Validaciones
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+      // Validaciones
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-  if (this.nombre.trim().length < 3) {
-    toast.error('❌ El nombre debe tener al menos 3 caracteres.');
-    return;
-  }
+      if (this.nombre.trim().length < 3) {
+        toast.error('❌ El nombre debe tener al menos 3 caracteres.');
+        return;
+      }
 
-  if (!emailRegex.test(this.email)) {
-    toast.error('❌ Introduce un correo electrónico válido.');
-    return;
-  }
+      if (!emailRegex.test(this.email)) {
+        toast.error('❌ Introduce un correo electrónico válido.');
+        return;
+      }
 
-  if (!passwordRegex.test(this.password)) {
-    toast.error('❌ La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.');
-    return;
-  }
+      if (!passwordRegex.test(this.password)) {
+        toast.error('❌ La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.');
+        return;
+      }
 
-  if (this.password !== this.repetir) {
-    toast.error('❌ Las contraseñas no coinciden.');
-    return;
-  }
+      if (this.password !== this.repetir) {
+        toast.error('❌ Las contraseñas no coinciden.');
+        return;
+      }
 
-  // Si todo OK → enviar registro
-  const payload = {
-    nombre: this.nombre,
-    email: this.email,
-    password: this.password,
-    tipo: this.tipo
-  };
 
-  try {
-    const res = await fetch(`${API_BASE}registro.php`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+      const payload = {
+        nombre: this.nombre,
+        email: this.email,
+        password: this.password,
+        tipo: this.tipo
+      };
 
-    const data = await res.json();
-    console.log("Respuesta registro:", data);
+      try {
+        const res = await fetch(`${API_BASE}registro.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
 
-    if (data.success && data.usuario) {
-      this.guardarUsuario(data.usuario);
-      localStorage.setItem('id_usuario', data.usuario.id_usuario);
-      localStorage.setItem('usuario', JSON.stringify(data.usuario));
+        const data = await res.json();
+        console.log("Respuesta registro:", data);
 
-      this.$emit('cerrar');
-      toast.success('✅ Registro exitoso. Has iniciado sesión.');
-    } else {
-      toast.error(data.error || '❌ Error al registrar usuario.');
+        if (data.success) {
+          toast.success('✅ Registro completado. Inicia sesión para continuar.');
+          this.$emit('cerrar'); 
+        }
+        else {
+          toast.error(data.error || '❌ Error al registrar usuario.');
+        }
+      } catch (e) {
+        console.error('Error al registrar:', e);
+        toast.error('❌ Error de conexión.');
+      }
     }
-  } catch (e) {
-    console.error('Error al registrar:', e);
-    toast.error('❌ Error de conexión.');
-  }
-}
 
   }
 };
@@ -222,8 +222,14 @@ button:hover {
 
 /* Animación suave */
 @keyframes fadeIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>
-

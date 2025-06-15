@@ -318,6 +318,32 @@ export default {
   }
 }
 
+@media (min-width: 481px) and (max-width: 768px) {
+  .galeria {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+
+  .inicio-container {
+    min-width: 100%
+  }
+
+  .hero {
+    height: 150px;
+    background-position: center 45%;
+  }
+
+  .buscador {
+    padding: 10px;
+    width: 95%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+
 
 
 @media (max-width: 480px) {

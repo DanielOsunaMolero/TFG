@@ -1,35 +1,24 @@
 <template>
   <div class="vblog">
-    
+
     <div class="hero-blog">
-     
-<div class="buscador-blog">
-  <input
-    type="text"
-    v-model="busqueda"
-    @input="filtrarValoraciones"
-    placeholder=" Buscar valoraciones por casa..."
-    class="input-busqueda"
-  />
-  <button class="boton-buscar" @click="filtrarValoraciones">
-    <font-awesome-icon :icon="['fas', 'search']" />
-  </button>
-</div>
+
+      <div class="buscador-blog">
+        <input type="text" v-model="busqueda" @input="filtrarValoraciones"
+          placeholder=" Buscar valoraciones por casa..." class="input-busqueda" />
+        <button class="boton-buscar" @click="filtrarValoraciones">
+          <font-awesome-icon :icon="['fas', 'search']" />
+        </button>
+      </div>
 
     </div>
 
     <!-- Valoraciones -->
     <div class="grid-valoraciones">
-      <valoracionCard
-        v-for="valoracion in valoracionesFiltradas"
-        :key="valoracion.id_valoracion"
-        :fotoPerfil="rutaFotoPerfil(valoracion.foto_perfil)"
-        :nombreUsuario="valoracion.nombre_usuario"
-        :nombreCasa="valoracion.nombre_casa"
-        :textoValoracion="valoracion.texto_valoracion"
-        :puntuacion="Number(valoracion.puntuacion)"
-        :diasEstancia="valoracion.dias_estancia"
-      />
+      <valoracionCard v-for="valoracion in valoracionesFiltradas" :key="valoracion.id_valoracion"
+        :fotoPerfil="rutaFotoPerfil(valoracion.foto_perfil)" :nombreUsuario="valoracion.nombre_usuario"
+        :nombreCasa="valoracion.nombre_casa" :textoValoracion="valoracion.texto_valoracion"
+        :puntuacion="Number(valoracion.puntuacion)" :diasEstancia="valoracion.dias_estancia" />
     </div>
 
     <div v-if="valoracionesFiltradas.length === 0" class="sin-valoraciones">
@@ -168,6 +157,8 @@ export default {
   opacity: 0.8;
 }
 
+/* ------------------ MEDIA QUERIES ORDENADAS ------------------ */
+
 @media (max-width: 1400px) {
   .grid-valoraciones {
     grid-template-columns: repeat(3, minmax(260px, 1fr));
@@ -180,6 +171,31 @@ export default {
   }
 }
 
+/* RANGO 481px - 768px → FALTABA → AÑADIDO */
+@media (min-width: 481px) and (max-width: 768px) {
+
+  .grid-valoraciones {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    padding: 20px;
+    gap: 20px;
+
+  }
+
+  .buscador-blog {
+    flex-direction: row;
+    width: 100%;
+    bottom: 15px;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .input-busqueda {
+    width: auto;
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
 @media (max-width: 768px) {
   .grid-valoraciones {
     grid-template-columns: 1fr;
@@ -187,6 +203,11 @@ export default {
     gap: 16px;
     margin-bottom: 10px;
     margin-top: 10px;
+  }
+  
+  .vblog{
+    width: 100%;
+    max-width: 100%;
   }
 
   .buscador-blog {

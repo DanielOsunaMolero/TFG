@@ -23,7 +23,6 @@
           </div>
           <input type="text" v-model="nuevoServicio" @keydown.enter.prevent="agregarServicio"
             placeholder="Añadir servicio..." />
-
         </div>
 
         <label>Imágenes nuevas:</label>
@@ -39,10 +38,8 @@
         <span class="eliminar" @click="eliminarImagenLocal(index)">✖</span>
       </div>
     </div>
-
   </div>
 </template>
-
 
 <script>
 import { API_BASE, IMG_BASE } from '@/config.js';
@@ -79,14 +76,45 @@ export default {
 
       this.servicios = datos.servicios ? datos.servicios.split(',').map(s => s.trim()) : [];
 
-      // ✅ AQUÍ es donde tienes que poner las imágenes existentes
-      this.imagenesExistentes = datos.imagenes.map(nombre => `${IMG_BASE}${nombre}`);
+      // 👉 NUEVO: buscar imágenes automáticamente
+      this.buscarImagenesPorTitulo(this.form.titulo);
 
     } catch (error) {
       console.error("Error al cargar la casa:", error);
     }
   },
   methods: {
+    normalizarTitulo(titulo) {
+      return (titulo || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+    },
+    buscarImagenesPorTitulo(titulo) {
+      const tituloNormalizado = this.normalizarTitulo(titulo);
+      const rutas = [];
+      const MAX_IMAGENES = 10;
+
+      for (let i = 1; i <= MAX_IMAGENES; i++) {
+        const url = `${IMG_BASE}Foto_${tituloNormalizado}(${i}).jpg`;
+        rutas.push(url);
+      }
+
+      this.imagenesExistentes = [];
+
+      rutas.forEach(url => {
+        const img = new Image();
+        img.onload = () => {
+          this.imagenesExistentes.push(url);
+        };
+        img.onerror = () => {
+          // No añadimos imágenes que no existan
+        };
+        img.src = url;
+      });
+    },
     handleImagenes(event) {
       this.imagenes = event.target.files;
     },
@@ -124,9 +152,7 @@ export default {
 
         if (result.success) {
           toast.success("✅ Casa actualizada correctamente.");
-          // Aquí actualizamos la galería de imágenes sin recargar la página
           this.imagenesExistentes = result.imagenes.map(nombre => `${IMG_BASE}${nombre}`);
-          // Vaciamos las nuevas imágenes seleccionadas
           this.imagenes = [];
         } else {
           toast.error("❌ Error al actualizar.");
@@ -136,7 +162,6 @@ export default {
         toast.error("❌ Error al actualizar la casa.");
       }
     },
-
     eliminarImagenLocal(index) {
       const toast = useToast();
 
@@ -168,6 +193,7 @@ export default {
   }
 };
 </script>
+
 
 
 

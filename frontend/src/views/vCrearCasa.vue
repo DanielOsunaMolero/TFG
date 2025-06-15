@@ -35,10 +35,9 @@
   </div>
 </template>
 
-
 <script>
 import { API_BASE } from '@/config.js';
-import { useToast } from 'vue-toastification'; // ✅ Importamos useToast
+import { useToast } from 'vue-toastification';
 
 export default {
   data() {
@@ -57,9 +56,8 @@ export default {
     handleArchivos(event) {
       this.archivos = event.target.files;
 
-      // ✅ Aviso opcional (esto es informativo, no bloquea)
+      const toast = useToast();
       if (this.archivos.length !== 6) {
-        const toast = useToast();
         toast.warning('⚠️ Debes seleccionar exactamente 6 imágenes.');
       }
     },
@@ -67,7 +65,6 @@ export default {
     async enviarFormulario() {
       const toast = useToast();
 
-      // ✅ Validar número de imágenes
       if (this.archivos.length !== 6) {
         toast.error('❌ Debes seleccionar exactamente 6 imágenes.');
         return;
@@ -75,18 +72,32 @@ export default {
 
       const formData = new FormData();
 
-      // Añadimos los datos del formulario
-      for (const key in this.form) {
-        formData.append(key, this.form[key]);
-      }
+      // ✅ Enviar datos correctamente
+      formData.append("titulo", this.form.titulo);
+      formData.append("descripcion", this.form.descripcion);
+      formData.append("ubicacion", this.form.ubicacion);
+      formData.append("precio_noche", Number(this.form.precio));
+      formData.append("servicios", this.form.servicios);
 
-      // ✅ Añadir el id_propietario (muy importante!)
-      formData.append("id_propietario", localStorage.getItem("id_usuario"));
+      // ✅ id_propietario como número para asegurar compatibilidad en PHP
+      const idPropietario = parseInt(localStorage.getItem("id_usuario")) || 0;
+      formData.append("id_propietario", idPropietario);
 
-      // Añadir las imágenes
       for (let i = 0; i < this.archivos.length; i++) {
         formData.append("imagenes[]", this.archivos[i]);
       }
+
+      // Log de control
+      console.log("Enviando crearCasa:", {
+        titulo: this.form.titulo,
+        descripcion: this.form.descripcion,
+        ubicacion: this.form.ubicacion,
+        precio_noche: Number(this.form.precio),
+        servicios: this.form.servicios,
+        id_propietario: idPropietario,
+        imagenes: this.archivos.length
+      });
+      console.log("typeof id_usuario:", typeof localStorage.getItem("id_usuario"));
 
       try {
         const res = await fetch(`${API_BASE}crearCasa.php`, {
@@ -101,7 +112,7 @@ export default {
           toast.success("✅ Casa creada correctamente.");
           this.$router.push("/gestion");
         } else {
-          toast.error(`❌ Error al crear la casa: ${resultado.error || ''}`);
+          toast.error(`❌ Error al crear la casa: ${resultado.error || resultado.message || ''}`);
         }
       } catch (err) {
         console.error("Error al enviar el formulario:", err);
@@ -111,8 +122,6 @@ export default {
   }
 };
 </script>
-
-
 
 
 <style scoped>

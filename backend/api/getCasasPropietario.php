@@ -2,19 +2,14 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-$conexion = new mysqli("localhost", "root", "", "weekendhouse");
-
-if ($conexion->connect_error) {
-    die(json_encode(["error" => "Conexión fallida"]));
-}
+require_once __DIR__ . '/conexion.php'; // así usas siempre la misma conexión
 
 $id_propietario = isset($_GET['id_propietario']) ? intval($_GET['id_propietario']) : 0;
 
 $sql = "SELECT * FROM casa_rural WHERE id_propietario = ?";
 $stmt = $conexion->prepare($sql);
-$stmt->bind_param("i", $id_propietario);
-$stmt->execute();
-$resultado = $stmt->get_result();
+$stmt->execute([$id_propietario]);
+$resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 function normalizarTitulo($titulo) {
     $titulo = mb_strtolower($titulo, 'UTF-8');
@@ -28,12 +23,15 @@ function normalizarTitulo($titulo) {
     return trim($titulo, '_');
 }
 
+// Ajustes para el HOSTING (https dinámico)
+$url_fotos = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") .
+    "://" . $_SERVER['HTTP_HOST'] . "/fotos/";
+
+$carpeta_fotos = $_SERVER['DOCUMENT_ROOT'] . "/fotos/";
+
 $casas = [];
 
-$url_fotos = "http://localhost:8080/fotos/";
-$carpeta_fotos = realpath(__DIR__ . '/../../frontend/public/fotos/') . '/';
-
-while ($fila = $resultado->fetch_assoc()) {
+foreach ($resultado as $fila) {
     $id = $fila["id_casa"];
     $titulo = $fila["titulo"];
     $nombre_formateado = normalizarTitulo($titulo);
@@ -56,5 +54,4 @@ while ($fila = $resultado->fetch_assoc()) {
 }
 
 echo json_encode($casas);
-$conexion->close();
 ?>

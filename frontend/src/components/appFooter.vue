@@ -4,10 +4,10 @@
 
       <div class="footer-left">
         <div class="footer-social">
-          <a href="#" class="social-icon">
+          <a href="https://www.instagram.com/dosuna981/" class="social-icon">
             <font-awesome-icon :icon="['fab', 'instagram']" /> Instagram
           </a>
-          <a href="#" class="social-icon">
+          <a href="https://www.facebook.com/" class="social-icon">
             <font-awesome-icon :icon="['fab', 'facebook']" /> Facebook
           </a>
         </div>

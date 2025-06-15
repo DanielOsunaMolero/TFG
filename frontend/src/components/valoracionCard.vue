@@ -164,4 +164,35 @@ export default {
     transform: translateY(0);
   }
 }
+@media (max-width: 1300px) {
+  .valoracion-card {
+    padding: 16px 7px;
+    min-height: 180px;
+  }
+
+  .foto-perfil {
+    width: 40px;
+    height: 40px;
+  }
+
+  .info-user h4 {
+    font-size: 14px;
+  }
+
+  .info-user p {
+    font-size: 12px;
+  }
+
+  .contenido .texto {
+    font-size: 13px;
+  }
+
+  .estrellas .estrella {
+    font-size: 16px;
+  }
+
+  .dias {
+    font-size: 11px;
+  }
+}
 </style>

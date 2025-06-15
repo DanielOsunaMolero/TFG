@@ -14,11 +14,16 @@ try {
         $titulo = $_POST['titulo'] ?? '';
         $descripcion = $_POST['descripcion'] ?? '';
         $ubicacion = $_POST['ubicacion'] ?? '';
-        $precio_noche = $_POST['precio_noche'] ?? 0;
+        $precio_noche = isset($_POST['precio_noche']) ? floatval($_POST['precio_noche']) : 0;
         $servicios = $_POST['servicios'] ?? '';
 
         if (!$id) {
             echo json_encode(["success" => false, "message" => "Falta ID de la casa."]);
+            exit;
+        }
+
+        if ($precio_noche <= 0) {
+            echo json_encode(["success" => false, "message" => "Precio incorrecto"]);
             exit;
         }
 
@@ -48,7 +53,7 @@ try {
 
         $nombreBase = normalizarTitulo($titulo);
 
-        // 4. Carpeta destino
+        // 4. Carpeta destino (mejor con realpath)
         $carpetaDestino = realpath(__DIR__ . '/../../frontend/public/fotos/') . '/';
 
         // 5. Procesar imágenes nuevas si vienen
@@ -83,6 +88,7 @@ try {
         // 7. Devolver respuesta
         echo json_encode([
             "success" => true,
+            "imagenes_guardadas" => $imagenes_guardadas,
             "imagenes" => $imagenesActuales
         ]);
 

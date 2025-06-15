@@ -23,7 +23,7 @@ if (!isset($data['nombre'])) {
 
 $nombre = basename($data['nombre']); // Evita rutas relativas o maliciosas
 
-$ruta = realpath(__DIR__ . '/../../frontend/public/fotos/') . '/' . $nombre;
+$ruta = $_SERVER['DOCUMENT_ROOT'] . "/fotos/" . $nombre;
 
 if (file_exists($ruta)) {
     if (unlink($ruta)) {

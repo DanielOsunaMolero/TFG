@@ -38,11 +38,9 @@
   </div>
 </template>
 
-
-
 <script>
 import { API_BASE, IMG_PERFIL_BASE } from '@/config.js';
-import { useToast } from 'vue-toastification'; // ✅ Importamos useToast
+import { useToast } from 'vue-toastification';
 
 export default {
   data() {
@@ -64,54 +62,37 @@ export default {
     },
 
     cambiarEstado(id, nuevoEstado) {
-      const toast = useToast(); // ✅ Inicializamos toast
+      const toast = useToast();
 
-      if (nuevoEstado === 'cancelada') {
-        // Eliminar la reserva
-        fetch(`${API_BASE}cancelarReserva.php`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_reserva: id })
+      fetch(`${API_BASE}actualizarEstadoReserva.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_reserva: id,
+          estado: nuevoEstado
         })
-          .then(res => res.json())
-          .then(data => {
-            console.log("Respuesta cancelarReserva:", data); // opcional depurar
-            if (data.success) {
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Respuesta actualizarEstadoReserva:", data);
+          if (data.success) {
+            if (nuevoEstado === 'cancelada') {
               this.reservas = this.reservas.filter(r => r.id_reserva !== id);
               toast.success("✅ Reserva cancelada correctamente.");
             } else {
-              toast.error(data.message || "❌ Error al cancelar la reserva.");
-            }
-          })
-          .catch(err => {
-            console.error("Error al cancelar:", err);
-            toast.error("❌ Error de conexión al cancelar reserva.");
-          });
-
-      } else {
-        // Confirmar reserva
-        fetch(`${API_BASE}reserva.php`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `id_reserva=${id}&estado=${nuevoEstado}`
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log("Respuesta confirmarReserva:", data); // opcional depurar
-            if (data.status === "ok") {
               this.reservas = this.reservas.map(r =>
                 r.id_reserva === id ? { ...r, estado: nuevoEstado } : r
               );
-              toast.success("✅ Reserva confirmada correctamente."); // ✅ añadimos toast
-            } else {
-              toast.error("❌ Error al confirmar la reserva.");
+              toast.success("✅ Reserva confirmada correctamente.");
             }
-          })
-          .catch(err => {
-            console.error("Error al confirmar:", err);
-            toast.error("❌ Error de conexión al confirmar reserva.");
-          });
-      }
+          } else {
+            toast.error(data.message || "❌ Error al actualizar la reserva.");
+          }
+        })
+        .catch(err => {
+          console.error("Error al actualizar reserva:", err);
+          toast.error("❌ Error de conexión al actualizar reserva.");
+        });
     },
 
     getFotoPerfilUrl(nombre) {
@@ -122,6 +103,8 @@ export default {
   }
 };
 </script>
+
+
 
 
 

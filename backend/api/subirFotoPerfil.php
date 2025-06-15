@@ -29,7 +29,7 @@ if (!in_array($archivo['type'], $permitidos)) {
 // Crear nombre único
 $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
 $nombre_archivo = "perfil_" . $id_usuario . "_" . time() . "." . $extension;
-$ruta_destino = __DIR__ . "/../../frontend/public/fotos_perfil/" . $nombre_archivo;
+$ruta_destino = $_SERVER['DOCUMENT_ROOT'] . "/fotos_perfil/" . $nombre_archivo;
 
 try {
     // 1. Obtener la foto actual (si existe)
@@ -39,7 +39,7 @@ try {
 
     // 2. Borrar foto anterior si hay una
     if ($foto_actual) {
-        $rutaAnterior = __DIR__ . "/../../frontend/public/fotos_perfil/" . $foto_actual;
+        $rutaAnterior = $_SERVER['DOCUMENT_ROOT'] . "/fotos_perfil/" . $foto_actual;
         if (file_exists($rutaAnterior)) {
             unlink($rutaAnterior);
         }

@@ -29,6 +29,16 @@ try {
         exit;
     }
 
+    // Construir URL completa de la foto de perfil
+    $url_perfil = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") .
+        "://" . $_SERVER['HTTP_HOST'] . "/fotos_perfil/";
+
+    if ($usuario['foto_perfil']) {
+        $usuario['foto_perfil'] = $url_perfil . $usuario['foto_perfil'];
+    } else {
+        $usuario['foto_perfil'] = $url_perfil . "default.png";
+    }
+
     // Obtener sus reservas
     $stmt2 = $conexion->prepare("
         SELECT r.id_reserva, r.fecha_inicio, r.fecha_fin, r.estado, c.titulo AS titulo_casa
@@ -49,3 +59,4 @@ try {
     http_response_code(500);
     echo json_encode(["error" => "Error en el servidor: " . $e->getMessage()]);
 }
+?>

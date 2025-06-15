@@ -1,3 +1,3 @@
-export const API_BASE = `http://${window.location.hostname}/dashboard/TFG/backend/api/`;
-export const IMG_BASE = `http://${window.location.hostname}:8080/fotos/`;
-export const IMG_PERFIL_BASE = `http://${window.location.hostname}:8080/fotos_perfil/`;
+export const API_BASE = `https://weekendhouse.great-site.net/api/`;
+export const IMG_BASE = `https://weekendhouse.great-site.net/fotos/`;
+export const IMG_PERFIL_BASE = `https://weekendhouse.great-site.net/fotos_perfil/`;

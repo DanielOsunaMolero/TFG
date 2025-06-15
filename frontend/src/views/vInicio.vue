@@ -344,8 +344,6 @@ export default {
 }
 
 
-
-
 @media (max-width: 480px) {
   .galeria {
     grid-template-columns: 1fr;

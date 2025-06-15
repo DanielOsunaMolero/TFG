@@ -57,11 +57,9 @@ try {
         foreach ($_FILES['imagenes']['tmp_name'] as $i => $tmp) {
             $nombre = "Foto_{$nombre_formateado}(" . ($i + 1) . ").jpg";
 
-            // Prueba si la imagen se puede mover
             if (move_uploaded_file($tmp, $carpeta . $nombre)) {
                 $imagenes_guardadas[] = $nombre;
             } else {
-                // 🚨 Si falla, enviamos un mensaje CLARO:
                 echo json_encode([
                     "success" => false,
                     "error" => "No se pudo mover la imagen '{$nombre}'",

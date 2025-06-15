@@ -238,7 +238,7 @@ export default {
         const fin = new Date(this.fecha_fin);
 
         // ✅ cálculo correcto de noches
-        const diferencia = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)); //redondea hacia arriba para incluir el último día y que cuente como noche
+        const diferencia = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)); 
 
         this.dias = diferencia > 0 ? diferencia : 0;
       } else {
@@ -539,7 +539,7 @@ button:hover {
     gap: 15px;
     padding: 0;
     justify-content: flex-start;
-    /* corregido */
+
   }
 
   .columna-izquierda,
@@ -547,13 +547,13 @@ button:hover {
     flex: 1 1 100%;
     min-width: 100%;
     width: 100%;
-    /* importante */
+    
     padding: 0;
   }
 
   .formulario {
     padding: 10px 8px;
-    /* más estrecho */
+
     border-radius: 10px;
     width: 90%;
   }

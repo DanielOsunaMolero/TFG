@@ -41,7 +41,7 @@ try {
     $imagenes = [];
     $nombreBase = normalizarTitulo($casa['titulo']);
 
-    // Carpeta fotos (AJUSTADA BIEN)
+    // Carpeta fotos 
     $carpetaFotos = realpath(__DIR__ . '/../../frontend/public/fotos/') . '/';
 
     // Glob con extensión jpg / jpeg / png
@@ -51,10 +51,10 @@ try {
         $imagenes[] = basename($fichero);
     }
 
-    // Añadir las imágenes al JSON
+
     $casa['imagenes'] = $imagenes;
 
-    // Devolver la casa completa (con imágenes)
+    // Devolver la casa completa 
     echo json_encode($casa);
 
 } catch (Exception $e) {

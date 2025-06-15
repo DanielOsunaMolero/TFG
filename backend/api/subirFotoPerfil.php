@@ -19,25 +19,25 @@ if (!isset($_FILES['foto']) || !isset($_POST['id_usuario'])) {
 $id_usuario = intval($_POST['id_usuario']);
 $archivo = $_FILES['foto'];
 
-// Validar tipo de archivo
+
 $permitidos = ['image/jpeg', 'image/png', 'image/jpg'];
 if (!in_array($archivo['type'], $permitidos)) {
     echo json_encode(["success" => false, "message" => "Formato no permitido"]);
     exit;
 }
 
-// Crear nombre único
+
 $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
 $nombre_archivo = "perfil_" . $id_usuario . "_" . time() . "." . $extension;
 $ruta_destino = $_SERVER['DOCUMENT_ROOT'] . "/fotos_perfil/" . $nombre_archivo;
 
 try {
-    // 1. Obtener la foto actual (si existe)
+    //Obtener la foto actual (si existe)
     $stmt = $conexion->prepare("SELECT foto_perfil FROM usuario WHERE id_usuario = ?");
     $stmt->execute([$id_usuario]);
     $foto_actual = $stmt->fetchColumn();
 
-    // 2. Borrar foto anterior si hay una
+    //Borrar foto anterior si hay una
     if ($foto_actual) {
         $rutaAnterior = $_SERVER['DOCUMENT_ROOT'] . "/fotos_perfil/" . $foto_actual;
         if (file_exists($rutaAnterior)) {

@@ -72,14 +72,14 @@ export default {
 
       const formData = new FormData();
 
-      // ✅ Enviar datos correctamente
+     
       formData.append("titulo", this.form.titulo);
       formData.append("descripcion", this.form.descripcion);
       formData.append("ubicacion", this.form.ubicacion);
       formData.append("precio_noche", Number(this.form.precio));
       formData.append("servicios", this.form.servicios);
 
-      // ✅ id_propietario como número para asegurar compatibilidad en PHP
+      // Obtener el ID del propietario desde localStorage
       const idPropietario = parseInt(localStorage.getItem("id_usuario")) || 0;
       formData.append("id_propietario", idPropietario);
 

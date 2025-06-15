@@ -6,7 +6,7 @@
         @mostrar-registro="mostrarRegistro = true" 
       />
 
-      <!-- Transición global con zoom-fade -->
+ 
       <transition name="zoom-fade" mode="out-in">
         <router-view class="contenido-principal" />
       </transition>
@@ -50,7 +50,7 @@ export default {
   methods: {
     handleLoginExitoso() {
       this.mostrarLogin = false;
-      // opcional: redireccionar o mostrar un mensaje global
+
     }
   }
 }

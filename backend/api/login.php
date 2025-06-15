@@ -1,15 +1,14 @@
 <?php
-// Habilitar errores
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Cabeceras CORS
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
 
-// RESPUESTA A PETICIONES OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
@@ -50,7 +49,6 @@ try {
         throw new Exception("Credenciales incorrectas.");
     }
 
-    // Quitar el campo password antes de enviar al frontend
     unset($usuario['password']);
 
     // Devolver usuario

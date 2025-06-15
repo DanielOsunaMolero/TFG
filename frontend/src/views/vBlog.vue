@@ -86,7 +86,7 @@ export default {
   box-sizing: border-box;
 }
 
-/* Hero (cabecera con imagen) */
+
 .hero-blog {
   position: relative;
   background-image: url('@/assets/heri_image_blog.jpg');
@@ -97,7 +97,7 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-/* Buscador flotante encima de la imagen */
+
 .buscador-blog {
   position: absolute;
   bottom: 20px;
@@ -157,7 +157,7 @@ export default {
   opacity: 0.8;
 }
 
-/* ------------------ MEDIA QUERIES ORDENADAS ------------------ */
+/* ------------------ MEDIA QUERIES ------------------ */
 
 @media (max-width: 1400px) {
   .grid-valoraciones {
@@ -171,7 +171,7 @@ export default {
   }
 }
 
-/* RANGO 481px - 768px → FALTABA → AÑADIDO */
+
 @media (min-width: 481px) and (max-width: 768px) {
 
   .grid-valoraciones {

@@ -123,7 +123,7 @@ export default {
             const formData = new FormData();
             formData.append("foto", this.archivoFoto);
             formData.append("id_usuario", id_usuario);
-
+            // Log de control
             try {
                 const res = await fetch(`${API_BASE}subirFotoPerfil.php`, {
                     method: "POST",
@@ -132,7 +132,7 @@ export default {
 
                 const data = await res.json();
                 console.log("Respuesta subirFotoPerfil:", data);
-
+                // Verificar si la respuesta es exitosa
                 if (data.success) {
                     toast.success("✅ Foto actualizada correctamente.");
                     if (this.usuario) {

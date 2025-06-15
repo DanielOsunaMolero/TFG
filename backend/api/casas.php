@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: *"); // ← esta línea permite que Vue acceda
+header("Access-Control-Allow-Origin: *"); 
 header("Content-Type: application/json");
 
 header('Content-Type: application/json');
@@ -12,7 +12,7 @@ $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode($resultado);
 
-/* PARA OBTENER TODAS LAS CASAS DESDE LA BASE DE DATOS */
+
 ?>
 
 

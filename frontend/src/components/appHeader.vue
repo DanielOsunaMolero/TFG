@@ -34,7 +34,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex'
-import { IMG_PERFIL_BASE } from '@/config.js'; // ✅ esta línea te falta
+import { IMG_PERFIL_BASE } from '@/config.js'; 
 
 export default {
   computed: {

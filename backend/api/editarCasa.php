@@ -9,7 +9,7 @@ require_once __DIR__ . '/conexion.php';
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        // 1. Recoger datos
+        //Recoger datos
         $id = $_POST['id'] ?? null;
         $titulo = $_POST['titulo'] ?? '';
         $descripcion = $_POST['descripcion'] ?? '';
@@ -27,7 +27,7 @@ try {
             exit;
         }
 
-        // 2. Actualizar datos básicos
+        // Actualizar datos básicos
         $sql = "UPDATE casa_rural SET 
                     titulo = ?, 
                     descripcion = ?, 
@@ -38,7 +38,7 @@ try {
         $stmt = $conexion->prepare($sql);
         $stmt->execute([$titulo, $descripcion, $ubicacion, $precio_noche, $servicios, $id]);
 
-        // 3. Función para normalizar el título
+        //Función para normalizar el título
         function normalizarTitulo($titulo) {
             $titulo = mb_strtolower($titulo, 'UTF-8');
             $titulo = strtr($titulo, [
@@ -53,15 +53,14 @@ try {
 
         $nombreBase = normalizarTitulo($titulo);
 
-        // 4. Carpeta destino (mejor con realpath)
+        //Carpeta destino (mejor con realpath)
         $carpetaDestino = realpath(__DIR__ . '/../../frontend/public/fotos/') . '/';
 
-        // 5. Procesar imágenes nuevas si vienen
+
         $imagenes_guardadas = [];
 
         if (!empty($_FILES['imagenes']['name'][0])) {
 
-            // Contar cuántas imágenes ya existen
             $ficherosExistentes = glob($carpetaDestino . "Foto_" . $nombreBase . "(*).jpg");
             $indice = count($ficherosExistentes) + 1;
 
@@ -75,7 +74,6 @@ try {
             }
         }
 
-        // 6. Devolver lista completa de imágenes actuales
         $imagenesActuales = [];
         $ficheros = glob($carpetaDestino . "Foto_" . $nombreBase . "(*).jpg");
 
@@ -85,7 +83,7 @@ try {
 
         sort($imagenesActuales);
 
-        // 7. Devolver respuesta
+
         echo json_encode([
             "success" => true,
             "imagenes_guardadas" => $imagenes_guardadas,

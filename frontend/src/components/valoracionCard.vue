@@ -56,7 +56,7 @@ export default {
   justify-content: flex-start;
   padding: 16px 20px;
   background-color: #ffffff;
-  border-left: 6px solid #60e29b; /* default, se sobreescribe por la clase dinámica */
+  border-left: 6px solid #60e29b; 
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   text-align: left;

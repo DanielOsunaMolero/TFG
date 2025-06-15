@@ -102,7 +102,7 @@ export default {
         dias: 1
       },
       id_usuario: null,
-      tipoUsuario: '' // ✅ añadido
+      tipoUsuario: '' 
     };
   },
   computed: {
@@ -236,7 +236,7 @@ export default {
   box-sizing: border-box;
 }
 
-/* Galería */
+
 .galeria {
   display: flex;
   flex-direction: column;
@@ -289,7 +289,7 @@ export default {
   border-color: #0e0e0e;
 }
 
-/* Título */
+
 .titulo {
   font-size: 32px;
   margin: 20px 0;
@@ -298,7 +298,7 @@ export default {
   text-align: center;
 }
 
-/* Servicios */
+
 .servicios {
   display: flex;
   flex-wrap: wrap;
@@ -433,7 +433,7 @@ export default {
   color: #ffcc00;
 }
 
-/* Valoraciones */
+
 .valoraciones {
   flex: 1 1 300px;
 }
@@ -445,7 +445,7 @@ export default {
   margin-top: 7%;
 }
 
-/* ---------- MEDIA QUERIES: RESPONSIVE ---------- */
+/* ---------- MEDIA QUERIES ---------- */
 @media (max-width: 1024px) {
   .imagen-principal {
     max-height: 350px;

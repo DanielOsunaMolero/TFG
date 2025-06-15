@@ -39,7 +39,7 @@ foreach ($resultado as $fila) {
     // Buscar las fotos de la casa
     $ficheros = glob($carpeta_fotos . "Foto_" . $nombre_formateado . "(*).{jpg,jpeg,png}", GLOB_BRACE);
 
-    // Si hay fotos, coger la primera; si no, poner imagen vacía
+
     if (!empty($ficheros)) {
         $imagen = $url_fotos . basename($ficheros[0]);
     } else {

@@ -76,7 +76,7 @@ export default {
 
       this.servicios = datos.servicios ? datos.servicios.split(',').map(s => s.trim()) : [];
 
-      // 👉 NUEVO: buscar imágenes automáticamente
+
       this.buscarImagenesPorTitulo(this.form.titulo);
 
     } catch (error) {
@@ -162,6 +162,7 @@ export default {
         toast.error("❌ Error al actualizar la casa.");
       }
     },
+    // Elimina una imagen del servidor y de la lista local
     eliminarImagenLocal(index) {
       const toast = useToast();
 
@@ -367,7 +368,7 @@ button:hover {
 
   .galeria-imagenes {
     width: 100%;
-    grid-template-columns: repeat(2, 1fr); /* en móvil mejor 2 columnas */
+    grid-template-columns: repeat(2, 1fr); /*en movil cambiamos a 2 columnas   */
     gap: 10px;
   }
 }
@@ -388,7 +389,7 @@ button:hover {
 
   .galeria-imagenes {
     width: 80%;
-    grid-template-columns: 1fr; /* en móvil pequeño, 1 columna */
+    grid-template-columns: 1fr; 
     gap: 8px;
     margin-bottom: 10px;
   }

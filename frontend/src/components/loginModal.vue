@@ -14,7 +14,7 @@
 <script>
 import { API_BASE } from '@/config.js';
 import { mapMutations } from 'vuex';
-import { useToast } from 'vue-toastification'; // ✅ añadido
+import { useToast } from 'vue-toastification'; 
 
 export default {
   name: 'LoginModal',
@@ -25,10 +25,10 @@ export default {
     };
   },
   methods: {
-    ...mapMutations(['guardarUsuario']), // ✅ usamos Vuex
+    ...mapMutations(['guardarUsuario']),
 
     async iniciarSesion() {
-      const toast = useToast(); // ✅ inicializamos toast
+      const toast = useToast(); 
 
       if (!this.email || !this.password) {
         toast.error('❌ Introduce tu correo y contraseña.');
@@ -46,19 +46,19 @@ export default {
         });
 
         const data = await res.json();
-        console.log("Respuesta del servidor:", data); // ✅ opcional depuración
+        console.log("Respuesta del servidor:", data); 
 
         if (data.success && data.usuario) {
-          // ✅ Guardar sesión
+
           this.guardarUsuario(data.usuario);
           localStorage.setItem('id_usuario', data.usuario.id_usuario);
           localStorage.setItem('usuario', JSON.stringify(data.usuario));
-          localStorage.setItem('tipo_usuario', data.usuario.tipo); // ✅ añadido
+          localStorage.setItem('tipo_usuario', data.usuario.tipo); 
 
-          // ✅ Cerrar modal
+    
           this.$emit('cerrar');
 
-          // ✅ Toast
+
           toast.success('✅ Sesión iniciada correctamente.');
 
         } else {

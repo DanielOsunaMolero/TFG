@@ -232,7 +232,6 @@ p {
   margin-top: 20px;
 }
 
-/* Responsive para móvil */
 @media (max-width: 768px) {
   .reserva-card {
     flex-direction: column;

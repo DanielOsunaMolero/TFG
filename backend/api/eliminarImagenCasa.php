@@ -21,7 +21,7 @@ if (!isset($data['nombre'])) {
     exit;
 }
 
-$nombre = basename($data['nombre']); // Evita rutas relativas o maliciosas
+$nombre = basename($data['nombre']); 
 
 $ruta = $_SERVER['DOCUMENT_ROOT'] . "/fotos/" . $nombre;
 

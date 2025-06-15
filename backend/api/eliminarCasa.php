@@ -28,12 +28,12 @@ if (!$id) {
 require_once __DIR__ . '/conexion.php';
 
 try {
-    // 1. Obtener el título de la casa
+    //Obtener el título de la casa
     $stmt = $conexion->prepare("SELECT titulo FROM casa_rural WHERE id_casa = ?");
     $stmt->execute([$id]);
     $titulo = $stmt->fetchColumn();
 
-    // 2. Eliminar la entrada en la base de datos
+    //Eliminar la entrada en la base de datos
     $stmt2 = $conexion->prepare("DELETE FROM casa_rural WHERE id_casa = ?");
     $exito = $stmt2->execute([$id]);
 
@@ -45,7 +45,7 @@ try {
         exit;
     }
 
-    // 3. Si tenía imágenes, eliminar los archivos del disco
+    //Si tenía imágenes, eliminar los archivos del disco
     if ($titulo) {
         $nombre_formateado = mb_strtolower($titulo, 'UTF-8');
         $nombre_formateado = strtr($nombre_formateado, [
